@@ -11,7 +11,6 @@ import ContextMain from "./ContextMain";
 import LoadingIndicatorModal from "./LoadingIndicatorModal";
 import ErrorDialog from "./ErrorDialog";
 import MaterialTable, { MTableToolbar } from "@material-table/core";
-import { baseUrl } from "./globals";
 
 // define the columns for the material data table
 const TABLE_COLUMNS = [

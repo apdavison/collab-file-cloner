@@ -5,7 +5,7 @@ import ContextMain from "./ContextMain";
 import LoadingIndicatorModal from "./LoadingIndicatorModal";
 import ErrorDialog from "./ErrorDialog";
 import LoadCollabs from "./LoadCollabs";
-import ConfirmOverwrite from "./ConfirmOverwrite";
+// import ConfirmOverwrite from "./ConfirmOverwrite";
 import { baseUrl, driveUrl } from "./globals";
 
 import axios from "axios";
@@ -14,37 +14,7 @@ import TextField from '@mui/material/TextField';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
-const fileExists = file =>
-  fetch(file, {method: 'HEAD', cache: 'no-store'})
-  .then((response) => {
-    console.log(response);
-    return response.status==200
-  });
-
-function existsFile(url) {
-  var xhr = new XMLHttpRequest();
-  xhr.open('HEAD', url, false);
-  xhr.onload = function() { return xhr.status != 404; };
-  xhr.onerror = function() { return false; };
-  xhr.send();
-}
-
-function getFileSize(url)
-{
-    var fileSize = '';
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false); // false = Synchronous
-    http.send(null); // it will stop here until this http request is complete
-    // when we are here, we already have a response, b/c we used Synchronous XHR
-    if (http.status === 200) {
-        fileSize = http.getResponseHeader('content-length');
-        console.log('fileSize = ' + fileSize);
-    }
-    return fileSize;
-}
 
 class App extends React.Component {
   signal = axios.CancelToken.source();
@@ -290,78 +260,78 @@ class App extends React.Component {
 
     // ------------------------------------------------
 
-    const checkDirExists = async(config, repo_id, dir_path) => {
-      // check if the specified directory exists
-      console.log("Checking if directory exists");
-      if (dir_path === "/") {
-        return true;
-      }
-      let url = driveUrl + `repos/${repo_id}/dir/detail/?path=${dir_path}`;
-      await axios
-      .get(url, config)
-      .then((res) => {
-        console.log(`Directory: ${dir_path} exists!`);
-        console.log(res);
-        return true
-      })
-      .catch((err) => {
-        if (err.response.status === 404) {
-          // indicates directory not found
-          return false
-        }
-        return err;
-      });
-    }
+    // const checkDirExists = async(config, repo_id, dir_path) => {
+    //   // check if the specified directory exists
+    //   console.log("Checking if directory exists");
+    //   if (dir_path === "/") {
+    //     return true;
+    //   }
+    //   let url = driveUrl + `repos/${repo_id}/dir/detail/?path=${dir_path}`;
+    //   await axios
+    //   .get(url, config)
+    //   .then((res) => {
+    //     console.log(`Directory: ${dir_path} exists!`);
+    //     console.log(res);
+    //     return true
+    //   })
+    //   .catch((err) => {
+    //     if (err.response.status === 404) {
+    //       // indicates directory not found
+    //       return false
+    //     }
+    //     return err;
+    //   });
+    // }
 
     // ------------------------------------------------
 
-    const createDir = async(config, repo_id, dir_path) => {
-      // create directory
-      console.log("Creating directory");
-      var data = new FormData();
-      data.append('operation', 'mkdir');
-      let url = driveUrl + `repos/${repo_id}/dir/?p=${dir_path}`
-      await axios
-      .post(url, data, config)
-      .then((res) => {
-        console.log(`Directory: ${dir_path} created!`);
-      })
-    }
+    // const createDir = async(config, repo_id, dir_path) => {
+    //   // create directory
+    //   console.log("Creating directory");
+    //   var data = new FormData();
+    //   data.append('operation', 'mkdir');
+    //   let url = driveUrl + `repos/${repo_id}/dir/?p=${dir_path}`
+    //   await axios
+    //   .post(url, data, config)
+    //   .then((res) => {
+    //     console.log(`Directory: ${dir_path} created!`);
+    //   })
+    // }
 
     // ------------------------------------------------
 
-    const createDestDir = async(config, repo_id, dest_dir_path) => {
-      // create the destination directory
-      console.log("Creating the destination directory");
-      for(var i = 2; i <= dest_dir_path.split("/").slice(1).length+1; i++){
-        let req_dir = "/"+dest_dir_path.split("/").slice(1,i).join("/");
-        if (!(await checkDirExists(config, repo_id, req_dir))) {
-          await createDir(config, repo_id, req_dir)
-        }
-      }
-    }
+    // const createDestDir = async(config, repo_id, dest_dir_path) => {
+    //   // create the destination directory
+    //   console.log("Creating the destination directory");
+    //   for(var i = 2; i <= dest_dir_path.split("/").slice(1).length+1; i++){
+    //     let req_dir = "/"+dest_dir_path.split("/").slice(1,i).join("/");
+    //     if (!(await checkDirExists(config, repo_id, req_dir))) {
+    //       await createDir(config, repo_id, req_dir)
+    //     }
+    //   }
+    // }
 
     // ------------------------------------------------
 
-    const checkFileExists = async(config, repo_id, file_path) => {
-      // check if the specified file exists
-      console.log("Checking if file exists");
-      let url = driveUrl + `repos/${repo_id}/file/detail/?path=${file_path}`;
-      await axios
-      .get(url, config)
-      .then((res) => {
-        console.log(`File: ${file_path} exists!`);
-        console.log(res);
-        return true
-      })
-      .catch((err) => {
-        if (err.response.status === 404) {
-          // indicates directory not found
-          return false
-        }
-        return err;
-      });
-    }
+    // const checkFileExists = async(config, repo_id, file_path) => {
+    //   // check if the specified file exists
+    //   console.log("Checking if file exists");
+    //   let url = driveUrl + `repos/${repo_id}/file/detail/?path=${file_path}`;
+    //   await axios
+    //   .get(url, config)
+    //   .then((res) => {
+    //     console.log(`File: ${file_path} exists!`);
+    //     console.log(res);
+    //     return true
+    //   })
+    //   .catch((err) => {
+    //     if (err.response.status === 404) {
+    //       // indicates directory not found
+    //       return false
+    //     }
+    //     return err;
+    //   });
+    // }
 
     // ------------------------------------------------
 
@@ -417,7 +387,7 @@ class App extends React.Component {
         // get list of all Collabs
         const collab_id = await getCollabID(config, this.state.target_collab);
         if (!collab_id) {
-          throw "Specified Collab does not exist or is inaccessible!"  
+          throw new Error("Specified Collab does not exist or is inaccessible!");  
         }
 
         // check and create destination directory in selected Collab
