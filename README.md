@@ -1,5 +1,5 @@
-# collab-notebook-cloner
-Collaboratory Jupyter Notebook Cloner
+# collab-file-cloner
+Collaboratory File Cloner
 
 #### Description
 TODO
