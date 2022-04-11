@@ -5,7 +5,8 @@ import ContextMain from "./ContextMain";
 import LoadingIndicatorModal from "./LoadingIndicatorModal";
 import ErrorDialog from "./ErrorDialog";
 import LoadCollabs from "./LoadCollabs";
-// import ConfirmOverwrite from "./ConfirmOverwrite";
+import SwitchMultiWay from "./SwitchMultiWay";
+// import ResultDialog from "./ResultDialog";
 import { baseUrl, driveUrl } from "./globals";
 
 import axios from "axios";
@@ -34,12 +35,13 @@ class App extends React.Component {
       target_collab: null,
       dest_dir: "/",
       // dest_filename: null,
-      file_overwrite: props.file_overwrite || false
+      file_overwrite: false
     };
 
     this.loadFileRef = React.createRef();
     this.handleFile = this.handleFile.bind(this);
     this.handleFieldChange = this.handleFieldChange.bind(this);
+    this.handleOverwriteChange = this.handleOverwriteChange.bind(this);
     this.handleErrorDialogClose = this.handleErrorDialogClose.bind(this);
     this.browseFile = this.browseFile.bind(this);
     this.cancelBrowseFile = this.cancelBrowseFile.bind(this);
@@ -65,14 +67,16 @@ class App extends React.Component {
       console.log(params["source_file"]);
       console.log(params["target_collab"]);
       console.log(params["dest_dir"]);
+      console.log(params["file_overwrite"]);
       // console.log(params["dest_filename"]);
       this.setState({
         source_file: params["source_file"] || "",
         target_collab: params["target_collab"] || null,
         dest_dir: params["dest_dir"] || "/",
+        file_overwrite: params["file_overwrite"].toLowerCase() === "true" || params["file_overwrite"].toLowerCase() === "yes" || false,
         // dest_filename: params["dest_filename"] || params["source_file"].split("/").pop() || null
       }, () => {
-        this.handleFile(params["source_file"]);
+        this.handleFile();
       })
     }
   }
@@ -81,6 +85,7 @@ class App extends React.Component {
     console.log(this.state.source_file);
     console.log(this.state.target_collab);
     console.log(this.state.dest_dir);
+    console.log(this.state.file_overwrite);
     // console.log(this.state.dest_filename);
   }
 
@@ -93,6 +98,13 @@ class App extends React.Component {
       value = "/" + value
     }
     this.setState({[name]: value})
+  }
+
+  handleOverwriteChange(value) {
+    console.log(value);
+    this.setState({
+      file_overwrite: value === "Yes" ? true : false,
+    });    
   }
 
   handleErrorDialogClose() {
@@ -227,7 +239,7 @@ class App extends React.Component {
       cancelToken: this.signal.token,
       headers: {
         // Authorization: "Bearer " + this.context.auth[0].token,
-        Authorization: "Bearer ADD_TOKEN_FOR_DEV",
+        Authorization: "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJfNkZVSHFaSDNIRmVhS0pEZDhXcUx6LWFlZ3kzYXFodVNJZ1RXaTA1U2k0In0.eyJleHAiOjE2NTAwMjg2MTAsImlhdCI6MTY0OTY3NTY3OSwiYXV0aF90aW1lIjoxNjQ5NDIzODEwLCJqdGkiOiJlZTdlYmMyNC1hNDg5LTQ5YjQtOTQ0Yi02ZTdlZWZiZjQ4MmQiLCJpc3MiOiJodHRwczovL2lhbS5lYnJhaW5zLmV1L2F1dGgvcmVhbG1zL2hicCIsImF1ZCI6WyJyZWFsbS1tYW5hZ2VtZW50IiwianVweXRlcmh1YiIsInh3aWtpIiwianVweXRlcmh1Yi1qc2MiLCJ0ZWFtIiwia2ciLCJwbHVzIiwiZ3JvdXAiXSwic3ViIjoiMzEwMjNjYTctZTRiYy00NzcyLWExNDUtMDdhOTA3MTVkNjA4IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoidmFsaWRhdGlvbi1zZXJ2aWNlLXYyIiwibm9uY2UiOiIyeW1rZlFqNVpJMG52TUsyOXJvMiIsInNlc3Npb25fc3RhdGUiOiI4YmZjOTk5MS1jMTIwLTRjNmQtODYwMy0zYzgwMDM0OGU3ZjYiLCJhY3IiOiIwIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vdmFsaWRhdGlvbi12Mi5icmFpbnNpbXVsYXRpb24uZXUiXSwic2NvcGUiOiJwcm9maWxlIGNvbGxhYi5kcml2ZSBjbGIuZHJpdmU6d3JpdGUgZW1haWwgcm9sZXMgb3BlbmlkIGdyb3VwIHRlYW0gY2xiLmRyaXZlOnJlYWQiLCJzaWQiOiI4YmZjOTk5MS1jMTIwLTRjNmQtODYwMy0zYzgwMDM0OGU3ZjYiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZ2VuZGVyIjoibnVsbCIsIm5hbWUiOiJTaGFpbGVzaCBBcHB1a3V0dGFuIiwibWl0cmVpZC1zdWIiOiIzMDMwMjAiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzaGFpbGVzaCIsImdpdmVuX25hbWUiOiJTaGFpbGVzaCIsImZhbWlseV9uYW1lIjoiQXBwdWt1dHRhbiIsImVtYWlsIjoic2hhaWxlc2guYXBwdWt1dHRhbkBjbnJzLmZyIn0.Qz2hj8QdtO00qtrVI6-LP1n2qT1cksMJoEi_IWwJRONSWZnkIDcLcAxtGZuBlStuxr51H-AJXrc-XQCj5EnJMkNkbHrRWFIrXKivefuc77_Ss101I7WpJc3TlG51oFnuuq0rg3xREGAzDKFnBJBM0flekQdE2DJrRkzFUDCeioC2_C0P5q65JBHDcHJa54Jkp4lTWmBpEIIjqnB0T--maJxDB3YWbj-_RfgHeyUT3bLaWBwEPt3MeYTGRXtCfOE0OFwNQ_jsSWUcugCeF5oYrWG9rCdHOnrOfivXdZdd4oepuOiwz9fog3l_w_3Z9_aHGc5C_OO6trU-0ahfrfOnhQ",
       },
     };
 
@@ -466,7 +478,7 @@ class App extends React.Component {
     }
 
     return (
-      <div className="container" style={{ textAlign: "left" }}>
+      <div className="container" style={{ textAlign: "left", width: "80%", maxWidth: "850px" }}>
         <LoadingIndicatorModal open={this.state.loading} />
         <br/>
         <br/>
@@ -506,11 +518,11 @@ class App extends React.Component {
           }}
         >
           This tool will allow you to clone a file into Collab storage.
-          The destination can be the storage associated with any Collab that you have write privileges.
+          The destination can be the storage associated with any Collab 
+          where you have write privileges.
           <br/><br/>
           The tool can be used either via manually loading the file below,
-          or via a query parameter '<code>/#URL_OF_FILE</code>'. The latter is 
-          useful for directly linking a file from within other applications.
+          or via specifying query parameters (see below for more details).
         </div>
         <br />
         <div
@@ -529,11 +541,49 @@ class App extends React.Component {
                 backgroundColor: "#fff8e1"
               }}
             >
-              <strong>Usage via URL query parameters</strong>
+              <strong>Usage via URL query parameters</strong>&nbsp;- (click for more info)
             </AccordionSummary>
-            <AccordionDetails>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                malesuada lacus ex, sit amet blandit leo lobortis eget.
+            <AccordionDetails>              
+              <div style={{paddingTop:"10px"}}><strong>Base URL:</strong> <code>https://collab-file-cloner.netlify.app/</code></div>
+              <br />
+              <strong>Query parameters:</strong>
+              <table>
+                <colgroup>
+                  <col style={{ width:"175px"}} />
+                  <col />
+                </colgroup>  
+                <tr>
+                  <td><code>source_file</code></td>
+                  <td>URL of source file (e.g. <code>http://website.com/sample.ipynb</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>target_collab</code></td>
+                  <td>
+                    Path of target Collab
+                    <br />e.g. for Collab at https://wiki.ebrains.eu/bin/view/Collabs/shailesh-testing/ <br />just specify '<code>shailesh-testing</code>'</td>
+                </tr>
+                <tr>
+                  <td><code>dest_dir</code></td>
+                  <td>
+                    Directory path in destination Collab where file is to be created specified.
+                    <br />Should start with '/', e.g. <code>/dir1/dir1_2</code>
+                    <br />Default value = <code>/</code> (root directory)
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>file_overwrite</code></td>
+                  <td>
+                    Indicate if the file is to be overwritten if one already exists at specified destination. 
+                    <br />Valid values = <code>yes</code> / <code>no</code> / <code>true</code> / <code>false</code>
+                    <br />Default value = <code>false</code> (i.e. do not overwrite)
+                  </td>
+                </tr>
+              </table>
+              <br />
+              <strong>Example usage:</strong><br />
+              <div style={{paddingTop:"10px", paddingBottom: "20px"}}>
+                <code>https://collab-file-cloner.netlify.app/#source_file=http://website.com/sample.ipynb&target_collab=my-test-collab&dest_dir=/dir1/dir1_2&file_overwrite=yes</code>
+              </div>
             </AccordionDetails>
           </Accordion>
         </div>
@@ -656,6 +706,36 @@ class App extends React.Component {
             }}
           />
         </div> */}
+        <br />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "right",
+            paddingRight: "20px"}}
+        >
+          Overwrite file if already exists at destination?
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "right",
+            paddingRight: "20px",
+            paddingTop:"5px"}}
+        >
+          <form style={{ paddingTop: "5px", paddingBottom: "5px" }}>
+            <SwitchMultiWay
+              values={["Yes", "No"]}
+              selected={
+                this.state.file_overwrite
+                  ? "Yes"
+                  : "No"
+              }
+              onChange={this.handleOverwriteChange}
+            />
+          </form>
+        </div>
         <br />
         <div
           style={{
