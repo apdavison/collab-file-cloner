@@ -6,8 +6,9 @@ import LoadingIndicatorModal from "./LoadingIndicatorModal";
 import ErrorDialog from "./ErrorDialog";
 import LoadCollabs from "./LoadCollabs";
 import SwitchMultiWay from "./SwitchMultiWay";
-// import ResultDialog from "./ResultDialog";
-import { baseUrl, driveUrl } from "./globals";
+import ResultDialog from "./ResultDialog";
+import { baseUrl, driveAPI_v2 } from "./globals";
+// import { baseUrl, driveAPI_v2, driveAPI_v2 } from "./globals";
 
 import axios from "axios";
 import Button from '@mui/material/Button';
@@ -26,23 +27,27 @@ class App extends React.Component {
 
     this.state = {
       collabListOpen: false,
+      resultDialogOpen: false,
       auth: props.auth || null,
       error: null,
       loading: false,
       loadFile: false,
       source_file: "https://brian2.readthedocs.io/en/stable/_downloads/d7b13492f17ebfd4a976a5406d818bae/1-intro-to-brian-neurons.ipynb",
       source_file_obj: null,
-      target_collab: null,
+      collab_id: null,
+      collab_lab_name: null,
+      dest_collab: null,
       dest_dir: "/",
-      // dest_filename: null,
+      dest_filename: null,
       file_overwrite: false
     };
 
     this.loadFileRef = React.createRef();
-    this.handleFile = this.handleFile.bind(this);
+    this.handleURLRequest = this.handleURLRequest.bind(this);
     this.handleFieldChange = this.handleFieldChange.bind(this);
     this.handleOverwriteChange = this.handleOverwriteChange.bind(this);
     this.handleErrorDialogClose = this.handleErrorDialogClose.bind(this);
+    this.handleResultDialogClose = this.handleResultDialogClose.bind(this);
     this.browseFile = this.browseFile.bind(this);
     this.cancelBrowseFile = this.cancelBrowseFile.bind(this);
     this.onFileSelect = this.onFileSelect.bind(this);
@@ -65,28 +70,28 @@ class App extends React.Component {
       }, {});
 
       console.log(params["source_file"]);
-      console.log(params["target_collab"]);
+      console.log(params["dest_collab"]);
       console.log(params["dest_dir"]);
+      console.log(params["dest_filename"]);
       console.log(params["file_overwrite"]);
-      // console.log(params["dest_filename"]);
       this.setState({
         source_file: params["source_file"] || "",
-        target_collab: params["target_collab"] || null,
+        dest_collab: params["dest_collab"] || null,
         dest_dir: params["dest_dir"] || "/",
+        dest_filename: params["dest_filename"] || params["source_file"].split("/").pop() || null,
         file_overwrite: params["file_overwrite"].toLowerCase() === "true" || params["file_overwrite"].toLowerCase() === "yes" || false,
-        // dest_filename: params["dest_filename"] || params["source_file"].split("/").pop() || null
       }, () => {
-        this.handleFile();
+        this.handleURLRequest();
       })
     }
   }
 
-  handleFile() {
+  handleURLRequest() {
     console.log(this.state.source_file);
-    console.log(this.state.target_collab);
+    console.log(this.state.dest_collab);
     console.log(this.state.dest_dir);
+    console.log(this.state.dest_filename);
     console.log(this.state.file_overwrite);
-    // console.log(this.state.dest_filename);
   }
 
   handleFieldChange(event) {
@@ -94,10 +99,17 @@ class App extends React.Component {
     const target = event.target;
     const name = target.name;
     let value = target.value;
-    if(name==="dest_dir" && value[0]!=="/") {
+    if(name === "dest_dir" && value[0]!=="/") {
       value = "/" + value
     }
-    this.setState({[name]: value})
+    if (name === "source_file") {
+      this.setState({
+        [name]: value,
+        dest_filename: value.split("/").pop()
+      })
+    } else {
+      this.setState({[name]: value})
+    }
   }
 
   handleOverwriteChange(value) {
@@ -109,6 +121,10 @@ class App extends React.Component {
 
   handleErrorDialogClose() {
     this.setState({ error: null });
+  }
+
+  handleResultDialogClose() {
+    this.setState({ resultDialogOpen: false });
   }
 
   browseFile() {
@@ -128,7 +144,8 @@ class App extends React.Component {
     console.log(event.target.files[0]);
     this.setState({
       source_file: event.target.files[0].name,
-      source_file_obj: event.target.files[0]
+      source_file_obj: event.target.files[0],
+      dest_filename: event.target.files[0].name
     })
   }
 
@@ -214,7 +231,7 @@ class App extends React.Component {
       });
       return
     }
-    if (!this.state.target_collab) {
+    if (!this.state.dest_collab) {
       this.setState({
         error: "Target Collab has not been specified!",
       });
@@ -238,18 +255,17 @@ class App extends React.Component {
     let config = {
       cancelToken: this.signal.token,
       headers: {
-        // Authorization: "Bearer " + this.context.auth[0].token,
-        Authorization: "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJfNkZVSHFaSDNIRmVhS0pEZDhXcUx6LWFlZ3kzYXFodVNJZ1RXaTA1U2k0In0.eyJleHAiOjE2NTAwMjg2MTAsImlhdCI6MTY0OTY3NTY3OSwiYXV0aF90aW1lIjoxNjQ5NDIzODEwLCJqdGkiOiJlZTdlYmMyNC1hNDg5LTQ5YjQtOTQ0Yi02ZTdlZWZiZjQ4MmQiLCJpc3MiOiJodHRwczovL2lhbS5lYnJhaW5zLmV1L2F1dGgvcmVhbG1zL2hicCIsImF1ZCI6WyJyZWFsbS1tYW5hZ2VtZW50IiwianVweXRlcmh1YiIsInh3aWtpIiwianVweXRlcmh1Yi1qc2MiLCJ0ZWFtIiwia2ciLCJwbHVzIiwiZ3JvdXAiXSwic3ViIjoiMzEwMjNjYTctZTRiYy00NzcyLWExNDUtMDdhOTA3MTVkNjA4IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoidmFsaWRhdGlvbi1zZXJ2aWNlLXYyIiwibm9uY2UiOiIyeW1rZlFqNVpJMG52TUsyOXJvMiIsInNlc3Npb25fc3RhdGUiOiI4YmZjOTk5MS1jMTIwLTRjNmQtODYwMy0zYzgwMDM0OGU3ZjYiLCJhY3IiOiIwIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vdmFsaWRhdGlvbi12Mi5icmFpbnNpbXVsYXRpb24uZXUiXSwic2NvcGUiOiJwcm9maWxlIGNvbGxhYi5kcml2ZSBjbGIuZHJpdmU6d3JpdGUgZW1haWwgcm9sZXMgb3BlbmlkIGdyb3VwIHRlYW0gY2xiLmRyaXZlOnJlYWQiLCJzaWQiOiI4YmZjOTk5MS1jMTIwLTRjNmQtODYwMy0zYzgwMDM0OGU3ZjYiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZ2VuZGVyIjoibnVsbCIsIm5hbWUiOiJTaGFpbGVzaCBBcHB1a3V0dGFuIiwibWl0cmVpZC1zdWIiOiIzMDMwMjAiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzaGFpbGVzaCIsImdpdmVuX25hbWUiOiJTaGFpbGVzaCIsImZhbWlseV9uYW1lIjoiQXBwdWt1dHRhbiIsImVtYWlsIjoic2hhaWxlc2guYXBwdWt1dHRhbkBjbnJzLmZyIn0.Qz2hj8QdtO00qtrVI6-LP1n2qT1cksMJoEi_IWwJRONSWZnkIDcLcAxtGZuBlStuxr51H-AJXrc-XQCj5EnJMkNkbHrRWFIrXKivefuc77_Ss101I7WpJc3TlG51oFnuuq0rg3xREGAzDKFnBJBM0flekQdE2DJrRkzFUDCeioC2_C0P5q65JBHDcHJa54Jkp4lTWmBpEIIjqnB0T--maJxDB3YWbj-_RfgHeyUT3bLaWBwEPt3MeYTGRXtCfOE0OFwNQ_jsSWUcugCeF5oYrWG9rCdHOnrOfivXdZdd4oepuOiwz9fog3l_w_3Z9_aHGc5C_OO6trU-0ahfrfOnhQ",
+        Authorization: "Bearer " + this.context.auth[0].token,
       },
     };
 
     // ------------------------------------------------
 
-    const getCollabID = async(config, target_collab) => {
-      // to get repo ID for other API calls
+    const getCollabID = async(config, dest_collab) => {
+      // to get repo ID for use in other API calls
       // only retrieving those with edit privileges
       console.log("Get Collab listing");
-      let url = driveUrl + "repos/";
+      let url = driveAPI_v2 + "repos/";
       let match_collab = null;
       await axios
       .get(url, config)
@@ -258,8 +274,8 @@ class App extends React.Component {
         for (let item of res.data) {
           console.log(item);
           if ( item.hasOwnProperty("owner") 
-              && ( item["owner"] === "collab-" + target_collab + "-administrator"
-                || item["owner"] === "collab-" + target_collab + "-editor")) {
+              && ( item["owner"] === "collab-" + dest_collab + "-administrator"
+                || item["owner"] === "collab-" + dest_collab + "-editor")) {
                   match_collab = item;
                   break;
                 }
@@ -267,7 +283,7 @@ class App extends React.Component {
         
       });
       // returns null if no suitable Collab found
-      return match_collab["id"] || match_collab;
+      return [match_collab["id"] || match_collab, match_collab["name"] || match_collab];
     }
 
     // ------------------------------------------------
@@ -278,7 +294,7 @@ class App extends React.Component {
     //   if (dir_path === "/") {
     //     return true;
     //   }
-    //   let url = driveUrl + `repos/${repo_id}/dir/detail/?path=${dir_path}`;
+    //   let url = driveAPI_v2 + `repos/${repo_id}/dir/detail/?path=${dir_path}`;
     //   await axios
     //   .get(url, config)
     //   .then((res) => {
@@ -302,7 +318,7 @@ class App extends React.Component {
     //   console.log("Creating directory");
     //   var data = new FormData();
     //   data.append('operation', 'mkdir');
-    //   let url = driveUrl + `repos/${repo_id}/dir/?p=${dir_path}`
+    //   let url = driveAPI_v2 + `repos/${repo_id}/dir/?p=${dir_path}`
     //   await axios
     //   .post(url, data, config)
     //   .then((res) => {
@@ -328,7 +344,7 @@ class App extends React.Component {
     // const checkFileExists = async(config, repo_id, file_path) => {
     //   // check if the specified file exists
     //   console.log("Checking if file exists");
-    //   let url = driveUrl + `repos/${repo_id}/file/detail/?path=${file_path}`;
+    //   let url = driveAPI_v2 + `repos/${repo_id}/file/detail/?path=${file_path}`;
     //   await axios
     //   .get(url, config)
     //   .then((res) => {
@@ -350,7 +366,7 @@ class App extends React.Component {
     const getUploadLink = async(config, repo_id) => {
       // get upload link for uploading file
       console.log("Getting upload link");
-      let url = driveUrl + `repos/${repo_id}/upload-link/?p=${"/"}`;
+      let url = driveAPI_v2 + `repos/${repo_id}/upload-link/?p=${"/"}`;
       let upload_link = null;
       await axios
       .get(url, config)
@@ -363,20 +379,48 @@ class App extends React.Component {
 
     // ------------------------------------------------
 
-    const uploadFile = async(config, repo_id, dest_dir_path) => {
+    const readUploadedFileAsText = (inputFile) => {
+      // return contents of file 
+      const temporaryFileReader = new FileReader();
+    
+      return new Promise((resolve, reject) => {
+        temporaryFileReader.onerror = () => {
+          temporaryFileReader.abort();
+          reject(new DOMException("Problem parsing input file."));
+        };
+    
+        temporaryFileReader.onload = () => {
+          resolve(temporaryFileReader.result);
+        };
+        temporaryFileReader.readAsText(inputFile);
+      });
+    };
+
+    // ------------------------------------------------
+
+    const uploadFile = async(config, repo_id, dest_dir_path, dest_filename, source_file, source_file_obj, file_overwrite) => {
       // get upload link and then upload file
       const upload_link = await getUploadLink(config, repo_id)
-      // get contents: local file
-      if (this.state.source_file_obj 
-          && this.state.source_file_obj.name === this.state.source_file) {
+      let result = null;
+
+      if (source_file_obj 
+          && source_file_obj.name === source_file) {
+        // get contents: local file
         console.log("Source file: Local File");
-        var reader = new FileReader();
         var file_obj = this.state.source_file_obj;
-        reader.onload = async function(event) {
-          // The file's text will be printed here
-          console.log()
+
+        // rename if the file if demanded
+        let file_obj_new = null;
+        if (source_file.split("/").pop() !== dest_filename) {
+          console.log("Setting new file name");
+          file_obj_new = new File([file_obj], dest_filename, {type: file_obj.type});
+        }
+
+        try {
+          const fileContents = await readUploadedFileAsText(source_file_obj)  
+          console.log(fileContents);
           var data = new FormData();
-          data.append('file', file_obj);
+          data.append('file', file_obj_new ? file_obj_new : file_obj);
           data.append('parent_dir', "/");
           data.append('relative_path', dest_dir_path.slice(1));
           data.append('replace', '0');
@@ -384,20 +428,41 @@ class App extends React.Component {
           .post(upload_link+"?ret-json=1", data)
           .then((res) => {
             console.log(res);
+            result = "success"
           });
-        };
-        reader.readAsText(this.state.source_file_obj);
+        } catch (e) {
+          console.warn(e.message)
+        }
       } else {
         console.log("Source file: URL");
       }
+      return result;
     }
 
     // ------------------------------------------------
 
-    this.setState({ loading: true }, async () => {
+    // const renameFile = async(config, repo_id, dest_dir_path, dest_filename) => {
+    //   // rename a file in the Collab storage
+    //   console.log("Renaming file in Collab storage");
+    //   let url = driveAPI_v2`_1 + `repos/${repo_id}/file/?p=${dest_dir_path + "/" + this.state.source_file.split("/").pop()}`;
+    //   var data = new FormData();
+    //   data.append('operation', 'rename');
+    //   data.append('newname', dest_filename);
+    //   await axios
+    //   .post(url, data, config)
+    //   .then((res) => {
+    //     console.log(`File renamed!`);
+    //   });
+    // }
+
+    // ------------------------------------------------
+
+    this.setState({ 
+      loading: true,
+     }, async () => {
       try {
         // get list of all Collabs
-        const collab_id = await getCollabID(config, this.state.target_collab);
+        const [collab_id, collab_lab_name] = await getCollabID(config, this.state.dest_collab);
         if (!collab_id) {
           throw new Error("Specified Collab does not exist or is inaccessible!");  
         }
@@ -408,9 +473,26 @@ class App extends React.Component {
         // await createDestDir(config, collab_id, this.state.dest_dir);
 
         // get upload link and upload file
-        const result = await uploadFile(config, collab_id, this.state.dest_dir);
+        let result = await uploadFile(config, 
+                                      collab_id, 
+                                      this.state.dest_dir, 
+                                      this.state.dest_filename,
+                                      this.state.source_file, 
+                                      this.state.source_file_obj,
+                                      this.state.file_overwrite);
         console.log(result);
 
+        this.setState({
+          collab_id: collab_id,
+          collab_lab_name: collab_lab_name,
+          resultDialogOpen: result,
+        })
+
+        // rename file at destination
+        // NOT REQUIRED - changing file name in local memory before upload above
+        // if (this.state.source_file.split("/").pop() !== this.state.dest_filename) {
+        //   result = await renameFile(config, collab_id, this.state.dest_dir, this.state.dest_filename)
+        // }
       } catch (err) { 
         console.log("Error!");
         if (axios.isCancel(err)) {
@@ -447,7 +529,7 @@ class App extends React.Component {
           open={this.state.collabListOpen}
           onClose={this.handleLoadCollabsClose}
           dest_dir={this.state.dest_dir}
-          target_collab={this.state.target_collab}
+          dest_collab={this.state.dest_collab}
           handleFieldChange={this.handleFieldChange}
         />
       );
@@ -473,6 +555,20 @@ class App extends React.Component {
           ref={this.loadFileRef}
           style={{ display: "none" }}
           onChange={this.onFileSelect}
+        />
+      );
+    }
+
+    var resultDialog = "";
+    if (this.state.resultDialogOpen) {
+      resultDialog = ( 
+        <ResultDialog
+          open={Boolean(this.state.resultDialogOpen)}
+          result={this.state.resultDialogOpen}
+          onClose={this.handleResultDialogClose}
+          collab_name={this.state.collab_lab_name}
+          collab_id={this.state.collab_id}
+          dest_file={this.state.dest_dir + "/" + this.state.dest_filename}
         />
       );
     }
@@ -557,7 +653,7 @@ class App extends React.Component {
                   <td>URL of source file (e.g. <code>http://website.com/sample.ipynb</code>)</td>
                 </tr>
                 <tr>
-                  <td><code>target_collab</code></td>
+                  <td><code>dest_collab</code></td>
                   <td>
                     Path of target Collab
                     <br />e.g. for Collab at https://wiki.ebrains.eu/bin/view/Collabs/shailesh-testing/ <br />just specify '<code>shailesh-testing</code>'</td>
@@ -567,7 +663,14 @@ class App extends React.Component {
                   <td>
                     Directory path in destination Collab where file is to be created specified.
                     <br />Should start with '/', e.g. <code>/dir1/dir1_2</code>
-                    <br />Default value = <code>/</code> (root directory)
+                    <br />Optional parameter. Default value = <code>/</code> (root directory)
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>dest_filename</code></td>
+                  <td>
+                    Indicate the file name (with extension) to be used for the cloned file at the destination.  
+                    <br />Optional parameter. As default it would retain the original file name with extension. 
                   </td>
                 </tr>
                 <tr>
@@ -575,14 +678,14 @@ class App extends React.Component {
                   <td>
                     Indicate if the file is to be overwritten if one already exists at specified destination. 
                     <br />Valid values = <code>yes</code> / <code>no</code> / <code>true</code> / <code>false</code>
-                    <br />Default value = <code>false</code> (i.e. do not overwrite)
+                    <br />Optional parameter. Default value = <code>false</code> (i.e. do not overwrite)
                   </td>
                 </tr>
               </table>
               <br />
               <strong>Example usage:</strong><br />
               <div style={{paddingTop:"10px", paddingBottom: "20px"}}>
-                <code>https://collab-file-cloner.netlify.app/#source_file=http://website.com/sample.ipynb&target_collab=my-test-collab&dest_dir=/dir1/dir1_2&file_overwrite=yes</code>
+                <code>https://collab-file-cloner.netlify.app/#source_file=http://website.com/sample.ipynb&dest_collab=my-test-collab&dest_dir=/dir1/dir1_2&dest_filename=sample_new.ipynb&file_overwrite=yes</code>
               </div>
             </AccordionDetails>
           </Accordion>
@@ -659,11 +762,11 @@ class App extends React.Component {
         <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
           <TextField
             // disabled
-            label="Target Collab"
+            label="Destination Collab"
             variant="outlined"
             fullWidth={true}
-            name="target_collab"
-            value={this.state.target_collab || " "}
+            name="dest_collab"
+            value={this.state.dest_collab || " "}
             onChange={this.handleFieldChange}
             InputProps={{
               style: {
@@ -689,7 +792,7 @@ class App extends React.Component {
             }}
           />
         </div>
-        {/* <br />
+        <br />
         <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
           <TextField
             // disabled
@@ -705,7 +808,7 @@ class App extends React.Component {
               },
             }}
           />
-        </div> */}
+        </div>
         <br />
         <div
           style={{
@@ -778,6 +881,7 @@ class App extends React.Component {
         <br />
         {fileExplorer}
         {collabListContent}
+        {resultDialog}
         {errorModal}
       </div>
     );

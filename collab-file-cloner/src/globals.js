@@ -1,5 +1,8 @@
 export const baseUrl = "https://validation-v2.brainsimulation.eu";
-export const driveUrl = "https://drive.ebrains.eu/api2/"
+export const driveAPI_v2 = "https://drive.ebrains.eu/api2/"
+export const driveAPI_v2_1 = "https://drive.ebrains.eu/api/v2.1/"
+export const driveGUI = "https://drive.ebrains.eu/lib/"
+export const jupyterGUI = "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/"
 
 export const isParent = window.opener == null;
 export const isIframe = window !== window.parent;
