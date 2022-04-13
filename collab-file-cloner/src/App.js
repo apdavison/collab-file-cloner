@@ -263,8 +263,7 @@ class App extends React.Component {
     let config = {
       cancelToken: this.signal.token,
       headers: {
-        // Authorization: "Bearer " + this.context.auth[0].token,
-        Authorization: "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJfNkZVSHFaSDNIRmVhS0pEZDhXcUx6LWFlZ3kzYXFodVNJZ1RXaTA1U2k0In0.eyJleHAiOjE2NTAwMjg2MTAsImlhdCI6MTY0OTY3NTY3OSwiYXV0aF90aW1lIjoxNjQ5NDIzODEwLCJqdGkiOiJlZTdlYmMyNC1hNDg5LTQ5YjQtOTQ0Yi02ZTdlZWZiZjQ4MmQiLCJpc3MiOiJodHRwczovL2lhbS5lYnJhaW5zLmV1L2F1dGgvcmVhbG1zL2hicCIsImF1ZCI6WyJyZWFsbS1tYW5hZ2VtZW50IiwianVweXRlcmh1YiIsInh3aWtpIiwianVweXRlcmh1Yi1qc2MiLCJ0ZWFtIiwia2ciLCJwbHVzIiwiZ3JvdXAiXSwic3ViIjoiMzEwMjNjYTctZTRiYy00NzcyLWExNDUtMDdhOTA3MTVkNjA4IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoidmFsaWRhdGlvbi1zZXJ2aWNlLXYyIiwibm9uY2UiOiIyeW1rZlFqNVpJMG52TUsyOXJvMiIsInNlc3Npb25fc3RhdGUiOiI4YmZjOTk5MS1jMTIwLTRjNmQtODYwMy0zYzgwMDM0OGU3ZjYiLCJhY3IiOiIwIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vdmFsaWRhdGlvbi12Mi5icmFpbnNpbXVsYXRpb24uZXUiXSwic2NvcGUiOiJwcm9maWxlIGNvbGxhYi5kcml2ZSBjbGIuZHJpdmU6d3JpdGUgZW1haWwgcm9sZXMgb3BlbmlkIGdyb3VwIHRlYW0gY2xiLmRyaXZlOnJlYWQiLCJzaWQiOiI4YmZjOTk5MS1jMTIwLTRjNmQtODYwMy0zYzgwMDM0OGU3ZjYiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZ2VuZGVyIjoibnVsbCIsIm5hbWUiOiJTaGFpbGVzaCBBcHB1a3V0dGFuIiwibWl0cmVpZC1zdWIiOiIzMDMwMjAiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzaGFpbGVzaCIsImdpdmVuX25hbWUiOiJTaGFpbGVzaCIsImZhbWlseV9uYW1lIjoiQXBwdWt1dHRhbiIsImVtYWlsIjoic2hhaWxlc2guYXBwdWt1dHRhbkBjbnJzLmZyIn0.Qz2hj8QdtO00qtrVI6-LP1n2qT1cksMJoEi_IWwJRONSWZnkIDcLcAxtGZuBlStuxr51H-AJXrc-XQCj5EnJMkNkbHrRWFIrXKivefuc77_Ss101I7WpJc3TlG51oFnuuq0rg3xREGAzDKFnBJBM0flekQdE2DJrRkzFUDCeioC2_C0P5q65JBHDcHJa54Jkp4lTWmBpEIIjqnB0T--maJxDB3YWbj-_RfgHeyUT3bLaWBwEPt3MeYTGRXtCfOE0OFwNQ_jsSWUcugCeF5oYrWG9rCdHOnrOfivXdZdd4oepuOiwz9fog3l_w_3Z9_aHGc5C_OO6trU-0ahfrfOnhQ",
+        Authorization: "Bearer " + this.context.auth[0].token,
       },
     };
 
@@ -675,7 +674,7 @@ class App extends React.Component {
             textAlign: "justify",
           }}
         >
-          <Accordion>
+          <Accordion expanded>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1a-content"
@@ -753,8 +752,51 @@ class App extends React.Component {
               </table>
               <br />
               <strong>Example usage:</strong><br />
-              <div style={{paddingTop:"10px", paddingBottom: "20px"}}>
-                <code>https://collab-file-cloner.netlify.app/#source_file=http://website.com/sample.ipynb&dest_collab=my-test-collab&dest_dir=/dir1/dir1_2&dest_filename=sample_new.ipynb&file_overwrite=yes&open_drive=yes</code>
+              <div style={{
+                            paddingTop:"10px", 
+                            paddingBottom: "20px",
+                            overflow: "auto",
+                            whiteSpace: "nowrap"
+                          }}>
+                <span style={{fontFamily:"monospace"}}>
+                  <span style={{fontWeight: "bolder"}}>https://collab-file-cloner.netlify.app/</span>
+                  <span style={{color:"red"}}>#</span>
+                  <span style={{color:"darkgreen"}}>
+                    <span style={{fontWeight: "bolder"}}>source_file</span>
+                    =
+                    http://website.com/sample.ipynb
+                  </span>
+                  <span style={{color:"red"}}>&</span>
+                  <span style={{color:"darkblue"}}>
+                    <span style={{fontWeight: "bolder"}}>dest_collab</span>
+                    =
+                    my-test-collab
+                  </span>
+                  <span style={{color:"red"}}>&</span>
+                  <span style={{color:"darkgreen"}}>
+                    <span style={{fontWeight: "bolder"}}>dest_dir</span>
+                    =
+                    /dir1/dir1_2
+                  </span>
+                  <span style={{color:"red"}}>&</span>
+                  <span style={{color:"darkblue"}}>
+                    <span style={{fontWeight: "bolder"}}>dest_filename</span>
+                    =
+                    sample_new.ipynb
+                  </span>
+                  <span style={{color:"red"}}>&</span>
+                  <span style={{color:"darkgreen"}}>
+                    <span style={{fontWeight: "bolder"}}>file_overwrite</span>
+                    =
+                    yes
+                  </span>
+                  <span style={{color:"red"}}>&</span>
+                  <span style={{color:"darkblue"}}>
+                    <span style={{fontWeight: "bolder"}}>open_drive</span>
+                    =
+                    yes
+                  </span>
+                </span>
               </div>
             </AccordionDetails>
           </Accordion>
