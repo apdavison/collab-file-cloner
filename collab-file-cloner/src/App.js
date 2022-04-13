@@ -674,7 +674,7 @@ class App extends React.Component {
             textAlign: "justify",
           }}
         >
-          <Accordion expanded>
+          <Accordion>
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
               aria-controls="panel1a-content"
@@ -763,38 +763,32 @@ class App extends React.Component {
                   <span style={{color:"red"}}>#</span>
                   <span style={{color:"darkgreen"}}>
                     <span style={{fontWeight: "bolder"}}>source_file</span>
-                    =
-                    http://website.com/sample.ipynb
+                    =http://website.com/sample.ipynb
                   </span>
                   <span style={{color:"red"}}>&</span>
                   <span style={{color:"darkblue"}}>
                     <span style={{fontWeight: "bolder"}}>dest_collab</span>
-                    =
-                    my-test-collab
+                    =my-test-collab
                   </span>
                   <span style={{color:"red"}}>&</span>
                   <span style={{color:"darkgreen"}}>
                     <span style={{fontWeight: "bolder"}}>dest_dir</span>
-                    =
-                    /dir1/dir1_2
+                    =/dir1/dir1_2
                   </span>
                   <span style={{color:"red"}}>&</span>
                   <span style={{color:"darkblue"}}>
                     <span style={{fontWeight: "bolder"}}>dest_filename</span>
-                    =
-                    sample_new.ipynb
+                    =sample_new.ipynb
                   </span>
                   <span style={{color:"red"}}>&</span>
                   <span style={{color:"darkgreen"}}>
                     <span style={{fontWeight: "bolder"}}>file_overwrite</span>
-                    =
-                    yes
+                    =yes
                   </span>
                   <span style={{color:"red"}}>&</span>
                   <span style={{color:"darkblue"}}>
                     <span style={{fontWeight: "bolder"}}>open_drive</span>
-                    =
-                    yes
+                    =yes
                   </span>
                 </span>
               </div>
