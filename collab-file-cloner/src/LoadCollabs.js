@@ -6,7 +6,6 @@ import DialogContent from "@mui/material/DialogContent";
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Box from "@mui/material/Box";
-import axios from "axios";
 import ContextMain from "./ContextMain";
 import LoadingIndicatorModal from "./LoadingIndicatorModal";
 import ErrorDialog from "./ErrorDialog";
@@ -16,13 +15,12 @@ import MaterialTable, { MTableToolbar } from "@material-table/core";
 const TABLE_COLUMNS = [
   {
     title: "Collab Path",
-    field: "collab_path",
+    field: "id",
     defaultSort: "asc",
   },
 ];
 
 export default class LoadCollabs extends React.Component {
-  signal = axios.CancelToken.source();
   static contextType = ContextMain;
 
   constructor(props, context) {
@@ -50,10 +48,10 @@ export default class LoadCollabs extends React.Component {
   render() {
     // console.log(this.state);
     // console.log(this.context.collabList[0]);
-    console.log(this.props.target_collab);
+    // console.log(this.props.target_collab);
     if (this.state.error) {
-      console.log(this.state.error);
-      console.log(typeof this.state.error);
+      // console.log(this.state.error);
+      // console.log(typeof this.state.error);
       console.log(JSON.stringify(this.state.error, null, 4));
       return (
         <ErrorDialog
@@ -94,10 +92,10 @@ export default class LoadCollabs extends React.Component {
                 columns={TABLE_COLUMNS}
                 onRowClick={(evt, selectedRow) => {
                   // console.log(evt);
-                  console.log(selectedRow);
+                  console.log(selectedRow.id);
                   let myEvent = { target: {
-                    name: 'target_collab',
-                    value: selectedRow.collab_path,
+                    name: 'dest_collab',
+                    value: selectedRow.id,
                   }}
                   this.props.handleFieldChange(myEvent);
                 }}
@@ -116,7 +114,7 @@ export default class LoadCollabs extends React.Component {
                   },
                   rowStyle: (rowData) => ({
                     backgroundColor:
-                      this.props.target_collab === rowData.collab_path
+                      this.props.dest_collab === rowData.id
                         ? "#FFD180"
                         : "#EEEEEE",
                   }),

@@ -34,7 +34,7 @@ export default class ResultDialog extends React.Component {
             {
               result
               ? "Success - File Cloned!"
-              : "Failure - File Already Exists!"
+              : "Error - File Already Exists!"
             }
           </span>
         </DialogTitle>
@@ -57,11 +57,14 @@ export default class ResultDialog extends React.Component {
                 A file with the same name already exists at the destination, 
                 and therefore the source file could not be cloned!
                 <br />
-                To overwrite this file, click '<strong>Close</strong>' below, set <strong>overwrite</strong> to '<strong>Yes</strong>' on the main page and redo this request.
+                To overwrite this file, click <strong>Close</strong> below, 
+                set <strong>overwrite</strong> to <strong>Yes</strong> on the main page and redo this request.
+                <br />Alternatively, you can also specify a different <strong>destination file name</strong>.
                 <br /><br />
                 To open the <strong>existing file</strong> in the Collaboratory Drive, click on 'Open Drive'.
                 <br />
-                To open the <strong>existing file</strong> in the Collaboratory's JupyterLab environment, click on 'Open JupyterLab'. 
+                To open the <strong>existing file</strong> in the Collaboratory's JupyterLab environment, 
+                click on 'Open JupyterLab'. 
               </Box>
             </div>
           }

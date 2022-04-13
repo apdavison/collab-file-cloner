@@ -66,21 +66,19 @@ const ConcealedRadio = ({ value, selected }) => (
 );
 
 export default class SwitchMultiWay extends React.Component {
-  state = { selected: this.props.selected };
 
   handleChange = (val) => {
-    this.setState({ selected: val });
     this.props.onChange(val);
   };
 
   selectionStyle = () => {
     return {
-      left: `${(this.props.values.indexOf(this.state.selected) / this.props.values.length) * 100}%`,
+      left: `${(this.props.values.indexOf(this.props.selected) / this.props.values.length) * 100}%`,
     };
   };
 
   render() {
-    const { selected } = this.state;
+    const selected  = this.props.selected;
     return (
       <Switch style={{width:this.props.values.length*200}}>
         {this.props.values.map((val) => {
