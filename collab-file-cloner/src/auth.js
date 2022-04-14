@@ -6,7 +6,7 @@ import Keycloak from 'keycloak-js';
 const keycloak = Keycloak({
     url: 'https://iam.ebrains.eu/auth',
     realm: 'hbp',
-    clientId: 'live-paper-apps',
+    clientId: 'collab-file-cloner',
     'public-client': true,
     'confidential-port': 0,
 });
@@ -18,6 +18,7 @@ export default function initAuth(main) {
     keycloak
         .init({ flow: 'standard', pkceMethod: 'S256' })
         // .init({ flow: 'hybrid'})
+        // .init({ flow: 'implicit', promiseType: 'native' }) // for local development
         .then(() => checkAuth(main))
         .catch(console.log);
 }
