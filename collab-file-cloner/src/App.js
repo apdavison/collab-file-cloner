@@ -90,12 +90,12 @@ class App extends React.Component {
         source_file: params["source_file"] || "",
         dest_collab: params["dest_collab"] || null,
         dest_dir: params["dest_dir"] || "/",
-        dest_filename: params["dest_filename"] || params["source_file"].split("/").pop() || null,
+        dest_filename: params["dest_filename"] || params["source_file"] ? params["source_file"].split("/").pop() : false || null,
         file_overwrite: setBoolean(params["file_overwrite"]),
         open_drive: setBoolean(params["open_drive"]),
         open_lab: setBoolean(params["open_lab"]),
       }, () => {
-        this.cloneFile();
+        this.cloneFile("query");
       })
     }
   }
@@ -158,7 +158,7 @@ class App extends React.Component {
   getCollabList(attempt = 0) {
     if(!this.context.collabList[0]) {
       this.setState({ loading: true }, () => {
-        // console.log("attempt: ", attempt);
+        console.log("attempt: ", attempt);
         const url = baseUrl + "/projects";
         let config = {
           cancelToken: this.signal.token,
@@ -229,7 +229,7 @@ class App extends React.Component {
     });
   }
 
-  cloneFile() {
+  cloneFile(workflow = "gui") {
     console.log("Clone File!");
 
     // ***** Basic checks ***** 
@@ -240,9 +240,19 @@ class App extends React.Component {
       return
     }
     if (!this.state.dest_collab) {
-      this.setState({
-        error: "Target Collab has not been specified!",
-      });
+      if (workflow != "gui") {
+        // workflow = query
+        this.getCollabList()
+        // this.setState({
+        //   error: null,
+        //   loading: false,
+        //   collabListOpen: true,
+        // });
+      } else {
+        this.setState({
+          error: "Target Collab has not been specified!",
+        });
+      }
       return
     }
     if (!this.state.dest_dir) {
@@ -705,8 +715,10 @@ class App extends React.Component {
                   <tr>
                     <td><code>dest_collab</code></td>
                     <td>
-                      Path of target Collab
-                      <br />e.g. for Collab at https://wiki.ebrains.eu/bin/view/Collabs/shailesh-testing/ <br />just specify '<code>shailesh-testing</code>'</td>
+                        Path of target Collab
+                        <br />e.g. for Collab at https://wiki.ebrains.eu/bin/view/Collabs/shailesh-testing/ <br />just specify '<code>shailesh-testing</code>'
+                        <br />If not specified, the app will open with the Collab selection panel.
+                      </td>
                   </tr>
                   <tr>
                     <td><code>dest_dir</code></td>
