@@ -240,7 +240,7 @@ class App extends React.Component {
       return
     }
     if (!this.state.dest_collab) {
-      if (workflow != "gui") {
+      if (workflow !== "gui") {
         // workflow = query
         this.getCollabList()
         // this.setState({
