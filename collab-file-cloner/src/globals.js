@@ -1,6 +1,13 @@
+// To access certain APIs that give CORS related issues
+export const corsProxy = "https://corsproxy.hbpneuromorphic.eu/";
+// export const corsProxy = "https://corsproxy-sa.herokuapp.com/"
+// previously used https://corsproxy-sa.herokuapp.com/ 
+// other options: https://cors-clear.herokuapp.com/, https://cors-fixer.herokuapp.com/, 
+// https://cors-handler.herokuapp.com/, https://cors-anywhere.herokuapp.com/ - latter now has request limits
+
 export const baseUrl = "https://validation-v2.brainsimulation.eu";
-export const driveAPI_v2 = "https://drive.ebrains.eu/api2/"
-export const driveAPI_v2_1 = "https://drive.ebrains.eu/api/v2.1/"
+export const driveAPI_v2 = corsProxy + "https://drive.ebrains.eu/api2/"
+export const driveAPI_v2_1 = corsProxy + "https://drive.ebrains.eu/api/v2.1/"
 export const driveGUI = "https://drive.ebrains.eu/lib/"
 export const jupyterGUI = "https://lab.ch.ebrains.eu/hub/user-redirect/lab/tree/shared/"
 
@@ -21,10 +28,3 @@ export const updateHash = (value) => {
     );
   }
 };
-
-// To access certain APIs that give CORS related issues
-export const corsProxy = "https://corsproxy.hbpneuromorphic.eu/";
-// export const corsProxy = "https://corsproxy-sa.herokuapp.com/"
-// previously used https://corsproxy-sa.herokuapp.com/ 
-// other options: https://cors-clear.herokuapp.com/, https://cors-fixer.herokuapp.com/, 
-// https://cors-handler.herokuapp.com/, https://cors-anywhere.herokuapp.com/ - latter now has request limits

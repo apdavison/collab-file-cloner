@@ -7,7 +7,7 @@ import ErrorDialog from "./ErrorDialog";
 import LoadCollabs from "./LoadCollabs";
 import SwitchMultiWay from "./SwitchMultiWay";
 import ResultDialog from "./ResultDialog";
-import { baseUrl, driveAPI_v2, driveGUI, jupyterGUI } from "./globals";
+import { baseUrl, driveAPI_v2, driveGUI, jupyterGUI, corsProxy } from "./globals";
 // import { baseUrl, driveAPI_v2, driveAPI_v2 } from "./globals";
 
 import axios from "axios";
@@ -264,6 +264,9 @@ class App extends React.Component {
       cancelToken: this.signal.token,
       headers: {
         Authorization: "Bearer " + this.context.auth[0].token,
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "cross-site"
       },
     };
 
@@ -410,7 +413,7 @@ class App extends React.Component {
 
     const getFileFromUrl = async(url, name, defaultType = 'image/jpeg') => {
       // read data from file at URL and return file object
-      const response = await fetch(url);
+      const response = await fetch(corsProxy + url);
       const data = await response.blob();
       return new File([data], name, {
         type: data.type || defaultType,
