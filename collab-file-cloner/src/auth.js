@@ -10,7 +10,8 @@ const keycloak = Keycloak({
     'public-client': true,
     'confidential-port': 0,
 });
-const YOUR_APP_SCOPES = 'openid team email profile clb.wiki.read clb.drive:read clb.drive:write';   // full list at https://iam.ebrains.eu/auth/realms/hbp/.well-known/openid-configuration
+// full list at https://iam.ebrains.eu/auth/realms/hbp/.well-known/openid-configuration
+const YOUR_APP_SCOPES = 'openid team email profile clb.wiki.read clb.drive:read clb.drive:write collab.drive';
 
 
 export default function initAuth(main) {
