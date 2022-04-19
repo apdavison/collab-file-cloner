@@ -84,6 +84,8 @@ export default class LoadCollabs extends React.Component {
               To have edit permissions for a Collab, you must be an 'adminstrator'
               or 'editor' of that Collab. You currrently have permissions to
               edit the following Collabs on the Collaboratory.
+              You can create a new Collab&nbsp;
+              <a href="https://wiki.ebrains.eu/bin/view/Collabs?clbaction=create" target="_blank" rel="noreferrer">here</a>.
             </Box>
             <Box my={2}>
               <MaterialTable

@@ -86,11 +86,14 @@ class App extends React.Component {
       // console.log(params["file_overwrite"]);
       // console.log(params["open_drive"]);
       // console.log(params["open_lab"]);
+      console.log(params)
+
+
       this.setState({
         source_file: params["source_file"] || "",
         dest_collab: params["dest_collab"] || null,
         dest_dir: params["dest_dir"] || "/",
-        dest_filename: params["dest_filename"] || params["source_file"] ? params["source_file"].split("/").pop() : false || null,
+        dest_filename: params["dest_filename"] || params["source_file"] ? params["source_file"].split("/").pop().split("?")[0] : false || null,
         file_overwrite: setBoolean(params["file_overwrite"]),
         open_drive: setBoolean(params["open_drive"]),
         open_lab: setBoolean(params["open_lab"]),
@@ -109,9 +112,19 @@ class App extends React.Component {
       value = "/" + value
     }
     if (name === "source_file") {
+      if (value.includes("drive.ebrains.eu")) {
+        // handle Drive download URLs; direct download should have suffix /?dl=1
+        if (!value.endsWith("/?dl=1")) {
+          if (value.endsWith("/")) {
+            value = value + "?dl=1"
+          } else {
+            value = value + "/?dl=1"
+          }
+        }
+      }
       this.setState({
         [name]: value,
-        dest_filename: value.split("/").pop()
+        dest_filename: value.split("/").pop().split("?")[0]
       })
     } else {
       this.setState({[name]: value})
@@ -674,10 +687,9 @@ class App extends React.Component {
         >
           This tool will allow you to clone a file into Collab storage.
           The destination can be the storage associated with any Collab 
-          where you have write privileges.
-          <br/><br/>
-          The tool can be used either via manually loading the file below,
-          or via specifying query parameters (see below for more details).
+          where you have write privileges. The tool can be used either 
+          via manually loading the file below, or via specifying query 
+          parameters (see below for more details).
         </div>
         <br />
         <div
@@ -715,7 +727,7 @@ class App extends React.Component {
                   <tr>
                     <td><code>dest_collab</code></td>
                     <td>
-                        Path of target Collab
+                        Path of destination Collab
                         <br />e.g. for Collab at https://wiki.ebrains.eu/bin/view/Collabs/shailesh-testing/ <br />just specify '<code>shailesh-testing</code>'
                         <br />If not specified, the app will open with the Collab selection panel.
                       </td>
@@ -806,6 +818,40 @@ class App extends React.Component {
                     =yes
                   </span>
                 </span>
+              </div>
+            </AccordionDetails>
+          </Accordion>
+        </div>
+        <br />
+        <div
+          style={{
+            paddingLeft: "2.5%",
+            paddingRight: "2.5%",
+            textAlign: "justify",
+          }}
+        >
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+              sx={{
+                backgroundColor: "#fff8e1"
+              }}
+            >
+              <strong>Cloning files from Collab storage</strong>&nbsp;- click for more info
+            </AccordionSummary>
+            <AccordionDetails>              
+              <div style={{paddingTop:"10px"}}>
+                Both Collab <strong>Drive</strong> & <strong>Lab</strong> offer a "Download Link" for individual files.
+                It should be noted that the <strong>Lab</strong> generated download link <u>does not</u> allow non-members
+                of the associated Collab to download the file. You are therfore required to use the download link
+                obtained via the Collab <strong>Drive</strong>! This can be obtained, for example, as follows:
+                <img
+                  className="ebrains-icon-small"
+                  src="./imgs/collab_download_link.gif"
+                  alt="Get Collab Drive file download link"
+                />
               </div>
             </AccordionDetails>
           </Accordion>
@@ -916,7 +962,7 @@ class App extends React.Component {
         <div style={{ paddingLeft: "20px", paddingRight: "20px" }}>
           <TextField
             // disabled
-            label="Target File Name"
+            label="Destination File Name"
             variant="outlined"
             fullWidth={true}
             name="dest_filename"
@@ -995,8 +1041,20 @@ class App extends React.Component {
             paddingRight: "20px",
             paddingTop:"10px"}}
         >
-        Please report any issues by creating a ticket&nbsp;
-        <a href="https://github.com/appukuttan-shailesh/collab-file-cloner/issues/new" 
+          Please report any issues by creating a ticket&nbsp;
+          <a href="https://github.com/appukuttan-shailesh/collab-file-cloner/issues/new" 
+           target="_blank" rel="noopener noreferrer"> here</a>.
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "right",
+            paddingRight: "20px",
+            paddingTop:"0px"}}
+        >
+          For known issues/limitations, take a look at the tickets&nbsp;
+          <a href="https://github.com/appukuttan-shailesh/collab-file-cloner/issues/" 
            target="_blank" rel="noopener noreferrer"> here</a>.
         </div>
         <br />
