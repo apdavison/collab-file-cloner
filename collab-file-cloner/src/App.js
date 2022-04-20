@@ -40,6 +40,7 @@ class App extends React.Component {
       dest_dir: "/",
       dest_filename: "",
       file_overwrite: false,
+      auto_run: false,
       open_drive: false,
       open_lab: false
     };
@@ -55,9 +56,11 @@ class App extends React.Component {
     this.getCollabList = this.getCollabList.bind(this);
     this.handleLoadCollabsClose = this.handleLoadCollabsClose.bind(this);
     this.cloneFile = this.cloneFile.bind(this);
+    this.formatDriveUrl = this.formatDriveUrl.bind(this);
+    this.getDriveFileName = this.getDriveFileName.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // console.log("Token: ", this.props.auth.token);
     const [, setAuthContext] = this.context.auth;
     setAuthContext(this.props.auth);
@@ -66,7 +69,7 @@ class App extends React.Component {
       var hash = window.location.hash.substr(1);
       var params = hash.split('&').reduce(function (res, item) {
           var parts = item.split('=');
-          res[parts[0]] = parts[1];
+          res[parts[0]] = parts.slice(1).join("=");
           return res;
       }, {});
 
@@ -79,29 +82,60 @@ class App extends React.Component {
         }
       }
 
-      // console.log(params["source_file"]);
-      // console.log(params["dest_collab"]);
-      // console.log(params["dest_dir"]);
-      // console.log(params["dest_filename"]);
-      // console.log(params["file_overwrite"]);
-      // console.log(params["open_drive"]);
-      // console.log(params["open_lab"]);
       console.log(params)
-
+      params["source_file"] = this.formatDriveUrl(params["source_file"]);
+      if (!params["dest_filename"] && params["source_file"]) {
+        if (params["source_file"].includes("drive.ebrains.eu") && params["source_file"].endsWith("?dl=1")) {
+          params["dest_filename"] = await this.getDriveFileName(params["source_file"].split("?dl=1")[0]);
+        } else {
+          params["dest_filename"] = params["source_file"].split("/").pop().split("?")[0];
+        }
+      }
 
       this.setState({
         source_file: params["source_file"] || "",
         dest_collab: params["dest_collab"] || null,
         dest_dir: params["dest_dir"] || "/",
-        dest_filename: params["dest_filename"] || params["source_file"] ? params["source_file"].split("/").pop().split("?")[0] : false || null,
+        dest_filename: params["dest_filename"] || null,
         file_overwrite: setBoolean(params["file_overwrite"]),
+        auto_run: setBoolean(params["auto_run"]),
         open_drive: setBoolean(params["open_drive"]),
         open_lab: setBoolean(params["open_lab"]),
       }, () => {
-        this.cloneFile("query");
-      })
+        if (this.state.auto_run) {
+          this.cloneFile("query");
+        }
+      });
     }
   }
+
+  formatDriveUrl(url) {
+    if (url.includes("drive.ebrains.eu")) {
+      // handle Drive download URLs; direct download should have suffix /?dl=1
+      if (!url.endsWith("/?dl=1")) {
+        url = url.endsWith("/") ? url + "?dl=1" : url + "/?dl=1";
+      }
+    }
+    return url;
+  }
+
+  async getDriveFileName (url) {
+    // get file name from Drive download link of file
+    let fileName = null;
+    await axios
+      .get(corsProxy + url)
+      .then((res) => {
+        if (res.status === 200) {
+          const parser = new DOMParser();
+          const document = parser.parseFromString(res.data, "text/html");
+          fileName = document.querySelector("meta[property='og:title']").getAttribute("content");
+        }
+      });
+    console.log(fileName);
+    return fileName;
+  }
+
+  // ------------------------------------------------
 
   handleFieldChange(event) {
     // console.log(event);
@@ -109,19 +143,10 @@ class App extends React.Component {
     const name = target.name;
     let value = target.value;
     if(name === "dest_dir" && value[0]!=="/") {
-      value = "/" + value
+      value = "/" + value;
     }
     if (name === "source_file") {
-      if (value.includes("drive.ebrains.eu")) {
-        // handle Drive download URLs; direct download should have suffix /?dl=1
-        if (!value.endsWith("/?dl=1")) {
-          if (value.endsWith("/")) {
-            value = value + "?dl=1"
-          } else {
-            value = value + "/?dl=1"
-          }
-        }
-      }
+      // value = this.formatDriveUrl(value);
       this.setState({
         [name]: value,
         dest_filename: value.split("/").pop().split("?")[0]
@@ -287,9 +312,6 @@ class App extends React.Component {
       cancelToken: this.signal.token,
       headers: {
         Authorization: "Bearer " + this.context.auth[0].token,
-        "sec-fetch-dest": "empty",
-        "sec-fetch-mode": "cors",
-        "sec-fetch-site": "cross-site"
       },
     };
 
@@ -728,8 +750,10 @@ class App extends React.Component {
                     <td><code>dest_collab</code></td>
                     <td>
                         Path of destination Collab
-                        <br />e.g. for Collab at https://wiki.ebrains.eu/bin/view/Collabs/shailesh-testing/ <br />just specify '<code>shailesh-testing</code>'
-                        <br />If not specified, the app will open with the Collab selection panel.
+                        <br />e.g. for Collab at https://wiki.ebrains.eu/bin/view/Collabs/shailesh-testing/ <br />
+                        just specify '<code>shailesh-testing</code>'
+                        <br />If not specified, and <code>auto_run</code> parameter (see below) set to <code>true/yes</code>, 
+                        the app will open with the Collab selection panel.
                       </td>
                   </tr>
                   <tr>
@@ -753,6 +777,16 @@ class App extends React.Component {
                       Indicate if the file is to be overwritten if one already exists at specified destination. 
                       <br />Valid values = <code>yes</code> / <code>no</code> / <code>true</code> / <code>false</code>
                       <br />Optional parameter. Default value = <code>false</code> (i.e. do not overwrite)
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>auto_run</code></td>
+                    <td>
+                      Indicate if the app should auto launch the cloning process if all mandatory fields are specified,&nbsp;
+                      i.e. <code>source_file</code> and <code>dest_collab</code>.
+                      <br />Valid values = <code>yes</code> / <code>no</code> / <code>true</code> / <code>false</code>
+                      <br />Optional parameter. Default value = <code>false</code> (i.e. will not run automatically, and requires 
+                      user to click on 'Clone File' button to launch cloning process)
                     </td>
                   </tr>
                   <tr>
@@ -814,6 +848,11 @@ class App extends React.Component {
                   </span>
                   <span style={{color:"red"}}>&</span>
                   <span style={{color:"darkblue"}}>
+                    <span style={{fontWeight: "bolder"}}>auto_run</span>
+                    =yes
+                  </span>
+                  <span style={{color:"red"}}>&</span>
+                  <span style={{color:"darkgreen"}}>
                     <span style={{fontWeight: "bolder"}}>open_drive</span>
                     =yes
                   </span>
@@ -845,13 +884,19 @@ class App extends React.Component {
               <div style={{paddingTop:"10px"}}>
                 Both Collab <strong>Drive</strong> & <strong>Lab</strong> offer a "Download Link" for individual files.
                 It should be noted that the <strong>Lab</strong> generated download link <u>does not</u> allow non-members
-                of the associated Collab to download the file. You are therfore required to use the download link
+                of the associated Collab to download the file. You are therefore required to use the download link
                 obtained via the Collab <strong>Drive</strong>! This can be obtained, for example, as follows:
+                <br />
                 <img
                   className="ebrains-icon-small"
                   src="./imgs/collab_download_link.gif"
                   alt="Get Collab Drive file download link"
+                  width="100%"
+                  style={{width:"100%", paddingTop:"10px", paddingBottom:"10px"}}
                 />
+                <br />
+                The app will try to auto-retrieve the name of the file corresponding to the Collab Drive download link, 
+                and set this as the destination file name.
               </div>
             </AccordionDetails>
           </Accordion>
