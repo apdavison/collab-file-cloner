@@ -28,7 +28,7 @@ class App extends React.Component {
     this.state = {
       collabListOpen: false,
       resultDialogOpen: false,
-      auth: props.auth || null,
+      token: props.token || null,
       error: null,
       loading: false,
       loadFile: false,
@@ -61,9 +61,9 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    // console.log("Token: ", this.props.auth.token);
-    const [, setAuthContext] = this.context.auth;
-    setAuthContext(this.props.auth);
+    // console.log("Token: ", this.props.token);
+    const [, setTokenContext] = this.context.token;
+    setTokenContext(this.props.token);
 
     if (window.location.hash) {
       var hash = window.location.hash.substr(1);
@@ -201,7 +201,7 @@ class App extends React.Component {
         let config = {
           cancelToken: this.signal.token,
           headers: {
-            Authorization: "Bearer " + this.context.auth[0].token,
+            Authorization: "Bearer " + this.context.token[0],
           },
         };
         axios
@@ -265,6 +265,11 @@ class App extends React.Component {
       collabListOpen: false,
       loading: false,
     });
+    window.scroll({
+      top: document.body.offsetHeight,
+      left: 0, 
+      behavior: 'smooth',
+    });
   }
 
   cloneFile(workflow = "gui") {
@@ -311,7 +316,7 @@ class App extends React.Component {
     let config = {
       cancelToken: this.signal.token,
       headers: {
-        Authorization: "Bearer " + this.context.auth[0].token,
+        Authorization: "Bearer " + this.context.token[0],
       },
     };
 

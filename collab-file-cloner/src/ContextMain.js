@@ -4,13 +4,13 @@ const ContextMain = React.createContext();
 
 const ContextMainProvider = (props) => {
   // Context state
-  const [auth, setAuth] = React.useState({});
+  const [token, setToken] = React.useState({});
   const [collabList, setCollabList] = React.useState(null);
 
   return (
     <ContextMain.Provider
       value={{
-        auth: [auth, setAuth],
+        token: [token, setToken],
         collabList: [collabList, setCollabList],
       }}
     >

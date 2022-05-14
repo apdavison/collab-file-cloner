@@ -11,7 +11,7 @@ function renderApp(auth) {
   ReactDOM.render(
     <React.StrictMode>
       <ContextMainProvider>
-        <App auth={auth} />
+        <App token={auth.token} />
       </ContextMainProvider>
     </React.StrictMode>,
     document.getElementById("root")
