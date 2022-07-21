@@ -48,7 +48,7 @@ export default function ErrorDialog(props) {
       // fullWidth={true}
       maxWidth="sm"
     >
-      <DialogTitle style={{ backgroundColor: "#ffd180" }}>
+      <DialogTitle style={{ backgroundColor: "#00A595" }}>
         <span style={{ fontWeight: "bolder", fontSize: 18 }}>
           There seems to be a problem...
         </span>

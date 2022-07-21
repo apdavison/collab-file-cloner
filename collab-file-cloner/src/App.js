@@ -68,14 +68,14 @@ class App extends React.Component {
     if (window.location.hash) {
       var hash = window.location.hash.substr(1);
       var params = hash.split('&').reduce(function (res, item) {
-          var parts = item.split('=');
-          res[parts[0]] = parts.slice(1).join("=");
-          return res;
+        var parts = item.split('=');
+        res[parts[0]] = parts.slice(1).join("=");
+        return res;
       }, {});
 
       function setBoolean(param) {
         // valid values = yes / true / no / false - case insensitive
-        if(param && (param.toLowerCase() === "true" || param.toLowerCase() === "yes")) {
+        if (param && (param.toLowerCase() === "true" || param.toLowerCase() === "yes")) {
           return true;
         } else {
           return false;
@@ -119,7 +119,7 @@ class App extends React.Component {
     return url;
   }
 
-  async getDriveFileName (url) {
+  async getDriveFileName(url) {
     // get file name from Drive download link of file
     let fileName = null;
     await axios
@@ -142,7 +142,7 @@ class App extends React.Component {
     const target = event.target;
     const name = target.name;
     let value = target.value;
-    if(name === "dest_dir" && value[0]!=="/") {
+    if (name === "dest_dir" && value[0] !== "/") {
       value = "/" + value;
     }
     if (name === "source_file") {
@@ -152,7 +152,7 @@ class App extends React.Component {
         dest_filename: value.split("/").pop().split("?")[0]
       })
     } else {
-      this.setState({[name]: value})
+      this.setState({ [name]: value })
     }
   }
 
@@ -160,7 +160,7 @@ class App extends React.Component {
     // console.log(value);
     this.setState({
       file_overwrite: value === "Yes" ? true : false,
-    });    
+    });
   }
 
   handleErrorDialogClose() {
@@ -194,7 +194,7 @@ class App extends React.Component {
   }
 
   getCollabList(attempt = 0) {
-    if(!this.context.collabList[0]) {
+    if (!this.context.collabList[0]) {
       this.setState({ loading: true }, () => {
         console.log("attempt: ", attempt);
         const url = baseUrl + "/projects";
@@ -215,7 +215,7 @@ class App extends React.Component {
               res.data.forEach((proj) => {
                 if (proj.permissions.UPDATE) {
                   // console.log(proj);
-                  editableProjects.push({'id': proj.project_id});
+                  editableProjects.push({ 'id': proj.project_id });
                 }
               });
               editableProjects.sort();
@@ -250,7 +250,7 @@ class App extends React.Component {
               loading: false,
             });
           });
-        });
+      });
     } else {
       this.setState({
         error: null,
@@ -267,7 +267,7 @@ class App extends React.Component {
     });
     window.scroll({
       top: document.body.offsetHeight,
-      left: 0, 
+      left: 0,
       behavior: 'smooth',
     });
   }
@@ -322,27 +322,27 @@ class App extends React.Component {
 
     // ------------------------------------------------
 
-    const getCollabID = async(config, dest_collab) => {
+    const getCollabID = async (config, dest_collab) => {
       // to get repo ID for use in other API calls
       // only retrieving those with edit privileges
       console.log("Get Collab listing");
       let url = driveAPI_v2 + "repos/";
       let match_collab = null;
       await axios
-      .get(url, config)
-      .then((res) => {
-        // console.log(res);
-        for (let item of res.data) {
-          // console.log(item);
-          if ( item.hasOwnProperty("owner") 
-              && ( item["owner"] === "collab-" + dest_collab + "-administrator"
+        .get(url, config)
+        .then((res) => {
+          // console.log(res);
+          for (let item of res.data) {
+            // console.log(item);
+            if (item.hasOwnProperty("owner")
+              && (item["owner"] === "collab-" + dest_collab + "-administrator"
                 || item["owner"] === "collab-" + dest_collab + "-editor")) {
-                  match_collab = item;
-                  break;
-                }
-        }
-        
-      });
+              match_collab = item;
+              break;
+            }
+          }
+
+        });
       console.log(match_collab);
       // returns null if no suitable Collab found
       return [match_collab["id"] || match_collab, match_collab["name"] || match_collab];
@@ -403,40 +403,40 @@ class App extends React.Component {
 
     // ------------------------------------------------
 
-    const checkFileExists = async(config, repo_id, file_path) => {
+    const checkFileExists = async (config, repo_id, file_path) => {
       // check if the specified file exists
       console.log("Checking if file exists");
       let url = driveAPI_v2 + `repos/${repo_id}/file/detail/?p=${file_path}`;
       let status = null;
       await axios
-      .get(url, config)
-      .then((res) => {
-        console.log(`File: ${file_path} exists!`);
-        // console.log(res);
-        status = true;
-      })
-      .catch((err) => {
-        if (err.response.status === 404) {
-          // indicates file not found
-          status = false;
-        }
-      });
+        .get(url, config)
+        .then((res) => {
+          console.log(`File: ${file_path} exists!`);
+          // console.log(res);
+          status = true;
+        })
+        .catch((err) => {
+          if (err.response.status === 404) {
+            // indicates file not found
+            status = false;
+          }
+        });
       return status;
     }
 
     // ------------------------------------------------
 
-    const getUploadLink = async(config, repo_id) => {
+    const getUploadLink = async (config, repo_id) => {
       // get upload link for uploading file
       console.log("Getting upload link");
       let url = driveAPI_v2 + `repos/${repo_id}/upload-link/?p=${"/"}`;
       let upload_link = null;
       await axios
-      .get(url, config)
-      .then((res) => {
-        upload_link = res.data
-        console.log(`Upload link received: ${upload_link}`);
-      });
+        .get(url, config)
+        .then((res) => {
+          upload_link = res.data
+          console.log(`Upload link received: ${upload_link}`);
+        });
       return upload_link;
     }
 
@@ -445,13 +445,13 @@ class App extends React.Component {
     // const readUploadedFileAsText = (inputFile) => {
     //   // return contents of file object
     //   const temporaryFileReader = new FileReader();
-    
+
     //   return new Promise((resolve, reject) => {
     //     temporaryFileReader.onerror = () => {
     //       temporaryFileReader.abort();
     //       reject(new DOMException("Problem parsing input file."));
     //     };
-    
+
     //     temporaryFileReader.onload = () => {
     //       resolve(temporaryFileReader.result);
     //     };
@@ -461,7 +461,7 @@ class App extends React.Component {
 
     // ------------------------------------------------
 
-    const getFileFromUrl = async(url, name, defaultType = 'image/jpeg') => {
+    const getFileFromUrl = async (url, name, defaultType = 'image/jpeg') => {
       // read data from file at URL and return file object
       const response = await fetch(corsProxy + url);
       const data = await response.blob();
@@ -472,7 +472,7 @@ class App extends React.Component {
 
     // ------------------------------------------------
 
-    const uploadFile = async(config, repo_id, dest_dir_path, dest_filename, source_file, source_file_obj, file_overwrite) => {
+    const uploadFile = async (config, repo_id, dest_dir_path, dest_filename, source_file, source_file_obj, file_overwrite) => {
       // get upload link and then upload file
       let result = null;
       try {
@@ -487,25 +487,25 @@ class App extends React.Component {
           console.log("Source file: URL");
           file_obj = await getFileFromUrl(source_file, dest_filename);
         }
-        
+
         // rename if the file if demanded
         let file_obj_new = null;
         if (source_file.split("/").pop() !== dest_filename) {
           console.log("Setting new file name");
-          file_obj_new = new File([file_obj], dest_filename, {type: file_obj.type});
+          file_obj_new = new File([file_obj], dest_filename, { type: file_obj.type });
         }
-        
+
         var data = new FormData();
         data.append('file', file_obj_new ? file_obj_new : file_obj);
         data.append('parent_dir', "/");
         data.append('relative_path', dest_dir_path.slice(1));
         data.append('replace', file_overwrite ? '1' : '0');
         await axios
-        .post(upload_link+"?ret-json=1", data)
-        .then((res) => {
-          // console.log(res);
-          result = "success"
-        });
+          .post(upload_link + "?ret-json=1", data)
+          .then((res) => {
+            // console.log(res);
+            result = "success"
+          });
       } catch (e) {
         console.warn(e.message);
         result = e.message;
@@ -531,16 +531,16 @@ class App extends React.Component {
 
     // ------------------------------------------------
 
-    this.setState({ 
+    this.setState({
       loading: true,
-     }, async () => {
+    }, async () => {
       try {
         // get list of all Collabs
         const [collab_id, collab_lab_name] = await getCollabID(config, this.state.dest_collab);
         // console.log(collab_id);
         // console.log(collab_lab_name);
         if (!collab_id) {
-          throw new Error("Specified Collab does not exist or is inaccessible!");  
+          throw new Error("Specified Collab does not exist or is inaccessible!");
         }
 
         let result = null;
@@ -551,7 +551,7 @@ class App extends React.Component {
             result = "overwrite";
           }
         }
-        
+
         if (result === null) {
           // check and create destination directory in selected Collab
           // NOT REQUIRED - using 'relative_path' attribute of upload file
@@ -559,18 +559,18 @@ class App extends React.Component {
           // await createDestDir(config, collab_id, this.state.dest_dir);
 
           // get upload link and upload file
-          result = await uploadFile(config, 
-                                        collab_id, 
-                                        this.state.dest_dir, 
-                                        this.state.dest_filename,
-                                        this.state.source_file, 
-                                        this.state.source_file_obj,
-                                        this.state.file_overwrite);
+          result = await uploadFile(config,
+            collab_id,
+            this.state.dest_dir,
+            this.state.dest_filename,
+            this.state.source_file,
+            this.state.source_file_obj,
+            this.state.file_overwrite);
           console.log(result);
         }
 
         if (result !== "success" && result !== "overwrite") {
-          throw new Error(result);  
+          throw new Error(result);
         }
 
         if (result === "success" && this.state.open_drive) {
@@ -592,7 +592,7 @@ class App extends React.Component {
         // if (this.state.source_file.split("/").pop() !== this.state.dest_filename) {
         //   result = await renameFile(config, collab_id, this.state.dest_dir, this.state.dest_filename)
         // }
-      } catch (err) { 
+      } catch (err) {
         console.log("Error!");
         if (axios.isCancel(err)) {
           console.log("error: ", err.message);
@@ -660,7 +660,7 @@ class App extends React.Component {
 
     var resultDialog = "";
     if (this.state.resultDialogOpen) {
-      resultDialog = ( 
+      resultDialog = (
         <ResultDialog
           open={Boolean(this.state.resultDialogOpen)}
           result={this.state.resultDialogOpen}
@@ -675,35 +675,48 @@ class App extends React.Component {
     return (
       <div className="container" style={{ textAlign: "left", width: "80%", maxWidth: "850px" }}>
         <LoadingIndicatorModal open={this.state.loading} />
-        <br/>
-        <br/>
         <div className="box rounded centered"
-          style={{ marginTop: "5px", paddingTop: "0.75em", paddingBottom: "0.75em" }}>
-          <a
-            href="https://ebrains.eu/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="waves-effect waves-light"
-            style={{ textAlign: "center", color: "black" }}
-          >
-            <table>
-              <tbody>
-                <tr>
-                  <td
-                    style={{ paddingTop: "0px",
-                             paddingBottom: "0px" }}>
-                    <img
-                      className="ebrains-icon-small"
-                      src="./imgs/ebrains_logo.svg"
-                      alt="EBRAINS logo"
-                      style={{ height: "60px" }}
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </a>
-          <h5 className="title-style">Collab File Cloner</h5>
+          style={{ marginTop: "25px", paddingTop: "0.25em", paddingBottom: "0.25em", marginBottom: "1em" }}>
+          <div style={{ display: "flex" }}>
+            <div style={{ flex: 1, textAlign: "center", paddingLeft: "25px", alignSelf: "center" }}>
+              <a href="https://ebrains.eu/"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ textAlign: "center" }}
+              >
+                <img
+                  src="./imgs/General_logo_Landscape_White.svg"
+                  alt="EBRAINS logo"
+                  style={{ height: "70px", cursor: "pointer" }}
+                />
+              </a>
+            </div>
+          </div>
+        </div>
+        <div
+          style={{
+            paddingLeft: "5%",
+            paddingRight: "5%",
+            textAlign: "justify",
+            fontSize: 16,
+            lineHeight: 1.75,
+            paddingBottom: "20px",
+          }}
+        >
+          <div className="title-solid-style" style={{ fontSize: 44 }}>Collab File Cloner</div>
+          <div className="title-solid-style" style={{ fontSize: 32, color: "#00A595" }}>Simple tool for copying files to Collab Drive</div>
+        </div>
+        <div style={{ marginBottom: "40px", }}>
+          <div className="rainbow-row">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
         </div>
         <div
           style={{
@@ -713,9 +726,9 @@ class App extends React.Component {
           }}
         >
           This tool will allow you to clone a file into Collab storage.
-          The destination can be the storage associated with any Collab 
-          where you have write privileges. The tool can be used either 
-          via manually loading the file below, or via specifying query 
+          The destination can be the storage associated with any Collab
+          where you have write privileges. The tool can be used either
+          via manually loading the file below, or via specifying query
           parameters (see below for more details).
         </div>
         <br />
@@ -732,20 +745,20 @@ class App extends React.Component {
               aria-controls="panel1a-content"
               id="panel1a-header"
               sx={{
-                backgroundColor: "#fff8e1"
+                backgroundColor: "#DCEDC8"
               }}
             >
               <strong>Usage via URL query parameters</strong>&nbsp;- click for more info
             </AccordionSummary>
-            <AccordionDetails>              
-              <div style={{paddingTop:"10px"}}><strong>Base URL:</strong> <code>https://collab-file-cloner.netlify.app/</code></div>
+            <AccordionDetails>
+              <div style={{ paddingTop: "10px" }}><strong>Base URL:</strong> <code>https://collab-file-cloner.netlify.app/</code></div>
               <br />
               <strong>Query parameters:</strong>
               <table>
                 <colgroup>
-                  <col style={{ width:"175px"}} />
+                  <col style={{ width: "175px" }} />
                   <col />
-                </colgroup>  
+                </colgroup>
                 <tbody>
                   <tr>
                     <td><code>source_file</code></td>
@@ -754,12 +767,12 @@ class App extends React.Component {
                   <tr>
                     <td><code>dest_collab</code></td>
                     <td>
-                        Path of destination Collab
-                        <br />e.g. for Collab at https://wiki.ebrains.eu/bin/view/Collabs/shailesh-testing/ <br />
-                        just specify '<code>shailesh-testing</code>'
-                        <br />If not specified, and <code>auto_run</code> parameter (see below) set to <code>true/yes</code>, 
-                        the app will open with the Collab selection panel.
-                      </td>
+                      Path of destination Collab
+                      <br />e.g. for Collab at https://wiki.ebrains.eu/bin/view/Collabs/shailesh-testing/ <br />
+                      just specify '<code>shailesh-testing</code>'
+                      <br />If not specified, and <code>auto_run</code> parameter (see below) set to <code>true/yes</code>,
+                      the app will open with the Collab selection panel.
+                    </td>
                   </tr>
                   <tr>
                     <td><code>dest_dir</code></td>
@@ -772,14 +785,14 @@ class App extends React.Component {
                   <tr>
                     <td><code>dest_filename</code></td>
                     <td>
-                      Indicate the file name (with extension) to be used for the cloned file at the destination.  
-                      <br />Optional parameter. As default it would retain the original file name with extension. 
+                      Indicate the file name (with extension) to be used for the cloned file at the destination.
+                      <br />Optional parameter. As default it would retain the original file name with extension.
                     </td>
                   </tr>
                   <tr>
                     <td><code>file_overwrite</code></td>
                     <td>
-                      Indicate if the file is to be overwritten if one already exists at specified destination. 
+                      Indicate if the file is to be overwritten if one already exists at specified destination.
                       <br />Valid values = <code>yes</code> / <code>no</code> / <code>true</code> / <code>false</code>
                       <br />Optional parameter. Default value = <code>false</code> (i.e. do not overwrite)
                     </td>
@@ -790,7 +803,7 @@ class App extends React.Component {
                       Indicate if the app should auto launch the cloning process if all mandatory fields are specified,&nbsp;
                       i.e. <code>source_file</code> and <code>dest_collab</code>.
                       <br />Valid values = <code>yes</code> / <code>no</code> / <code>true</code> / <code>false</code>
-                      <br />Optional parameter. Default value = <code>false</code> (i.e. will not run automatically, and requires 
+                      <br />Optional parameter. Default value = <code>false</code> (i.e. will not run automatically, and requires
                       user to click on 'Clone File' button to launch cloning process)
                     </td>
                   </tr>
@@ -798,7 +811,7 @@ class App extends React.Component {
                     <td><code>open_drive</code></td>
                     <td>
                       Indicate if user should be redirected to the cloned file in Collaboratory drive,&nbsp;
-                      <strong>if cloning is successful</strong>. 
+                      <strong>if cloning is successful</strong>.
                       <br />Valid values = <code>yes</code> / <code>no</code> / <code>true</code> / <code>false</code>
                       <br />Optional parameter. Default value = <code>false</code> (i.e. no redirection)
                     </td>
@@ -807,11 +820,11 @@ class App extends React.Component {
                     <td><code>open_lab</code></td>
                     <td>
                       Indicate if user should be redirected to the cloned file in Collaboratory's JupyterLab,&nbsp;
-                      <strong>if cloning is successful</strong>. 
+                      <strong>if cloning is successful</strong>.
                       <br />Valid values = <code>yes</code> / <code>no</code> / <code>true</code> / <code>false</code>
                       <br />Optional parameter. Default value = <code>false</code> (i.e. no redirection)
                       <br /><strong>Note: </strong><code>open_drive</code> takes priority. So if both set to yes/true,&nbsp;
-                      <code>open_lab</code> would be ignored. 
+                      <code>open_lab</code> would be ignored.
                     </td>
                   </tr>
                 </tbody>
@@ -819,46 +832,46 @@ class App extends React.Component {
               <br />
               <strong>Example usage:</strong><br />
               <div style={{
-                            paddingTop:"10px", 
-                            paddingBottom: "20px",
-                            overflow: "auto",
-                            whiteSpace: "nowrap"
-                          }}>
-                <span style={{fontFamily:"monospace"}}>
-                  <span style={{fontWeight: "bolder"}}>https://collab-file-cloner.netlify.app/</span>
-                  <span style={{color:"red"}}>#</span>
-                  <span style={{color:"darkgreen"}}>
-                    <span style={{fontWeight: "bolder"}}>source_file</span>
+                paddingTop: "10px",
+                paddingBottom: "20px",
+                overflow: "auto",
+                whiteSpace: "nowrap"
+              }}>
+                <span style={{ fontFamily: "monospace" }}>
+                  <span style={{ fontWeight: "bolder" }}>https://collab-file-cloner.netlify.app/</span>
+                  <span style={{ color: "red" }}>#</span>
+                  <span style={{ color: "darkgreen" }}>
+                    <span style={{ fontWeight: "bolder" }}>source_file</span>
                     =http://website.com/sample.ipynb
                   </span>
-                  <span style={{color:"red"}}>&</span>
-                  <span style={{color:"darkblue"}}>
-                    <span style={{fontWeight: "bolder"}}>dest_collab</span>
+                  <span style={{ color: "red" }}>&</span>
+                  <span style={{ color: "darkblue" }}>
+                    <span style={{ fontWeight: "bolder" }}>dest_collab</span>
                     =my-test-collab
                   </span>
-                  <span style={{color:"red"}}>&</span>
-                  <span style={{color:"darkgreen"}}>
-                    <span style={{fontWeight: "bolder"}}>dest_dir</span>
+                  <span style={{ color: "red" }}>&</span>
+                  <span style={{ color: "darkgreen" }}>
+                    <span style={{ fontWeight: "bolder" }}>dest_dir</span>
                     =/dir1/dir1_2
                   </span>
-                  <span style={{color:"red"}}>&</span>
-                  <span style={{color:"darkblue"}}>
-                    <span style={{fontWeight: "bolder"}}>dest_filename</span>
+                  <span style={{ color: "red" }}>&</span>
+                  <span style={{ color: "darkblue" }}>
+                    <span style={{ fontWeight: "bolder" }}>dest_filename</span>
                     =sample_new.ipynb
                   </span>
-                  <span style={{color:"red"}}>&</span>
-                  <span style={{color:"darkgreen"}}>
-                    <span style={{fontWeight: "bolder"}}>file_overwrite</span>
+                  <span style={{ color: "red" }}>&</span>
+                  <span style={{ color: "darkgreen" }}>
+                    <span style={{ fontWeight: "bolder" }}>file_overwrite</span>
                     =yes
                   </span>
-                  <span style={{color:"red"}}>&</span>
-                  <span style={{color:"darkblue"}}>
-                    <span style={{fontWeight: "bolder"}}>auto_run</span>
+                  <span style={{ color: "red" }}>&</span>
+                  <span style={{ color: "darkblue" }}>
+                    <span style={{ fontWeight: "bolder" }}>auto_run</span>
                     =yes
                   </span>
-                  <span style={{color:"red"}}>&</span>
-                  <span style={{color:"darkgreen"}}>
-                    <span style={{fontWeight: "bolder"}}>open_drive</span>
+                  <span style={{ color: "red" }}>&</span>
+                  <span style={{ color: "darkgreen" }}>
+                    <span style={{ fontWeight: "bolder" }}>open_drive</span>
                     =yes
                   </span>
                 </span>
@@ -880,13 +893,13 @@ class App extends React.Component {
               aria-controls="panel1a-content"
               id="panel1a-header"
               sx={{
-                backgroundColor: "#fff8e1"
+                backgroundColor: "#DCEDC8"
               }}
             >
               <strong>Cloning files from Collab storage</strong>&nbsp;- click for more info
             </AccordionSummary>
-            <AccordionDetails>              
-              <div style={{paddingTop:"10px"}}>
+            <AccordionDetails>
+              <div style={{ paddingTop: "10px" }}>
                 Both Collab <strong>Drive</strong> & <strong>Lab</strong> offer a "Download Link" for individual files.
                 It should be noted that the <strong>Lab</strong> generated download link <u>does not</u> allow non-members
                 of the associated Collab to download the file. You are therefore required to use the download link
@@ -897,10 +910,10 @@ class App extends React.Component {
                   src="./imgs/collab_download_link.gif"
                   alt="Get Collab Drive file download link"
                   width="100%"
-                  style={{width:"100%", paddingTop:"10px", paddingBottom:"10px"}}
+                  style={{ width: "100%", paddingTop: "10px", paddingBottom: "10px" }}
                 />
                 <br />
-                The app will try to auto-retrieve the name of the file corresponding to the Collab Drive download link, 
+                The app will try to auto-retrieve the name of the file corresponding to the Collab Drive download link,
                 and set this as the destination file name.
               </div>
             </AccordionDetails>
@@ -913,14 +926,15 @@ class App extends React.Component {
             justifyContent: "center",
             alignItems: "right",
             paddingRight: "20px",
-            paddingTop:"10px"}}
+            paddingTop: "10px"
+          }}
         >
           <Button
             variant="contained"
             color="primary"
             style={{
               width: "27.5%",
-              backgroundColor: "#FF9800",
+              backgroundColor: "#4DC26D",
               color: "#000000",
               fontWeight: "bold",
               border: "solid",
@@ -955,14 +969,15 @@ class App extends React.Component {
             justifyContent: "center",
             alignItems: "right",
             paddingRight: "20px",
-            paddingTop:"10px"}}
+            paddingTop: "10px"
+          }}
         >
           <Button
             variant="contained"
             color="primary"
             style={{
               width: "27.5%",
-              backgroundColor: "#FF9800",
+              backgroundColor: "#4DC26D",
               color: "#000000",
               fontWeight: "bold",
               border: "solid",
@@ -1031,7 +1046,8 @@ class App extends React.Component {
             display: "flex",
             justifyContent: "center",
             alignItems: "right",
-            paddingRight: "20px"}}
+            paddingRight: "20px"
+          }}
         >
           Overwrite file if already exists at destination?
         </div>
@@ -1041,7 +1057,8 @@ class App extends React.Component {
             justifyContent: "center",
             alignItems: "right",
             paddingRight: "20px",
-            paddingTop:"5px"}}
+            paddingTop: "5px"
+          }}
         >
           <form style={{ paddingTop: "5px", paddingBottom: "5px" }}>
             <SwitchMultiWay
@@ -1062,14 +1079,15 @@ class App extends React.Component {
             justifyContent: "center",
             alignItems: "right",
             paddingRight: "20px",
-            paddingTop:"10px"}}
+            paddingTop: "10px"
+          }}
         >
           <Button
             variant="contained"
             color="primary"
             style={{
               width: "27.5%",
-              backgroundColor: "#8BC34A",
+              backgroundColor: "#4DC26D",
               color: "#000000",
               fontWeight: "bold",
               border: "solid",
@@ -1082,18 +1100,18 @@ class App extends React.Component {
           </Button>
         </div>
         <br />
-        <br />
         <div
           style={{
             display: "flex",
             justifyContent: "center",
             alignItems: "right",
             paddingRight: "20px",
-            paddingTop:"10px"}}
+            paddingTop: "10px"
+          }}
         >
           Please report any issues by creating a ticket&nbsp;
-          <a href="https://github.com/appukuttan-shailesh/collab-file-cloner/issues/new" 
-           target="_blank" rel="noopener noreferrer"> here</a>.
+          <a href="https://github.com/appukuttan-shailesh/collab-file-cloner/issues/new"
+            target="_blank" rel="noopener noreferrer"> here</a>.
         </div>
         <div
           style={{
@@ -1101,13 +1119,13 @@ class App extends React.Component {
             justifyContent: "center",
             alignItems: "right",
             paddingRight: "20px",
-            paddingTop:"0px"}}
+            paddingTop: "0px"
+          }}
         >
           For known issues/limitations, take a look at the tickets&nbsp;
-          <a href="https://github.com/appukuttan-shailesh/collab-file-cloner/issues/" 
-           target="_blank" rel="noopener noreferrer"> here</a>.
+          <a href="https://github.com/appukuttan-shailesh/collab-file-cloner/issues/"
+            target="_blank" rel="noopener noreferrer"> here</a>.
         </div>
-        <br />
         <br />
         <div className="rainbow-row">
           <div></div>

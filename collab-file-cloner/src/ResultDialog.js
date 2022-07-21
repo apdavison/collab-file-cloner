@@ -89,7 +89,7 @@ export default class ResultDialog extends React.Component {
               color="primary"
               style={{
                 width: "22%",
-                backgroundColor: "#FF9800",
+                backgroundColor: "#00A595",
                 color: "#000000",
                 fontWeight: "bold",
                 border: "solid",
@@ -108,7 +108,7 @@ export default class ResultDialog extends React.Component {
               color="primary"
               style={{
                 width: "22%",
-                backgroundColor: "#FF9800",
+                backgroundColor: "#4DC26D",
                 color: "#000000",
                 fontWeight: "bold",
                 border: "solid",
@@ -127,7 +127,7 @@ export default class ResultDialog extends React.Component {
               color="primary"
               style={{
                 width: "22%",
-                backgroundColor: "#8BC34A",
+                backgroundColor: "#9CE142",
                 color: "#000000",
                 fontWeight: "bold",
                 border: "solid",
