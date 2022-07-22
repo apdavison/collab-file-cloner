@@ -73,7 +73,7 @@ export default class LoadCollabs extends React.Component {
           fullWidth={true}
           maxWidth="md"
         >
-          <DialogTitle style={{ backgroundColor: "#ffd180" }}>
+          <DialogTitle style={{ backgroundColor: "#00A595" }}>
             <span style={{ fontWeight: "bolder", fontSize: 18 }}>
               Clone File to Collab
             </span>
@@ -110,7 +110,7 @@ export default class LoadCollabs extends React.Component {
                   headerStyle: {
                     position: "sticky",
                     top: 0,
-                    backgroundColor: "#FFFFFF",
+                    backgroundColor: "#EEEEEE",
                     fontWeight: "bolder",
                     fontSize: 15,
                   },
@@ -118,14 +118,14 @@ export default class LoadCollabs extends React.Component {
                     backgroundColor:
                       this.props.dest_collab === rowData.id
                         ? "#FFD180"
-                        : "#EEEEEE",
+                        : "#EFF7E5",
                   }),
                 }}
                 components={{
                   Toolbar: (props) => (
                     <div
                       style={{
-                        backgroundColor: "#FFD180",
+                        backgroundColor: "#13AC8B",
                         fontWeight: "bolder !important",
                       }}
                     >
@@ -169,7 +169,7 @@ export default class LoadCollabs extends React.Component {
                 color="primary"
                 style={{
                   width: "20%",
-                  backgroundColor: "#8BC34A",
+                  backgroundColor: "#4DC26D",
                   color: "#000000",
                   fontWeight: "bold",
                   border: "solid",
