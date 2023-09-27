@@ -8,7 +8,6 @@ import LoadCollabs from "./LoadCollabs";
 import SwitchMultiWay from "./SwitchMultiWay";
 import ResultDialog from "./ResultDialog";
 import { baseUrl, driveAPI_v2, driveGUI, jupyterGUI, corsProxy } from "./globals";
-// import { baseUrl, driveAPI_v2, driveAPI_v2 } from "./globals";
 
 import axios from "axios";
 import Button from '@mui/material/Button';
