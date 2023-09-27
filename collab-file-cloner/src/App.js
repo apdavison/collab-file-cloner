@@ -529,7 +529,7 @@ class App extends React.Component {
           console.warn(e.message);
           result = e.message;
         }
-        if (result != "success") {
+        if (result !== "success") {
           return result;
         }
       });
@@ -571,7 +571,7 @@ class App extends React.Component {
           // if overwrite not set, then check if a file already exists at destination
           let file_exists = null;
           let dest_items_names = this.state.dest_filename.split(',').map(x => x.trim());
-          for (item in dest_items_names) {
+          for (let item in dest_items_names) {
             file_exists = await checkFileExists(config, collab_id, this.state.dest_dir + "/" + item);
             if (file_exists) {
               result = "overwrite";
