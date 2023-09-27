@@ -912,6 +912,14 @@ class App extends React.Component {
                   </span>
                 </span>
               </div>
+              <br />
+              <strong>Note: </strong><br />
+              <div style={{
+                paddingTop: "10px",
+                paddingBottom: "20px",
+              }}>
+                Multiple source files can be specified by passing the individual file URLs as comma separated values. See <a href="https://github.com/appukuttan-shailesh/collab-file-cloner/issues/5" target="_blank" rel=" noreferrer">here</a> for more details.
+              </div>
             </AccordionDetails>
           </Accordion>
         </div>
