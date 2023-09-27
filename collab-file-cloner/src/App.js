@@ -84,21 +84,22 @@ class App extends React.Component {
       console.log(params)
 
       // new feature: handle multiple source file URLs
-      let soure_items = params["source_file"].split(',').map(x => x.trim());
-      soure_items.forEach((item, index) => {
-        soure_items[index] = this.formatDriveUrl(item);
+      let source_items = params["source_file"].split(',').map(x => x.trim());
+      source_items.forEach((item, index) => {
+        source_items[index] = this.formatDriveUrl(item);
       });
-      params["source_file"] = soure_items.join();
+      params["source_file"] = source_items.join();
       // single source file: params["source_file"] = this.formatDriveUrl(params["source_file"]);
+
+      console.log(params);
 
       if (!params["dest_filename"] && params["source_file"]) {
         if (params["source_file"].includes("drive.ebrains.eu") && params["source_file"].endsWith("?dl=1")) {
           // new feature: handle multiple source file URLs
           let dest_items_names = []; 
-          soure_items.forEach(async (item, index) => {
+          for (let item of source_items) {
             dest_items_names.push(await this.getDriveFileName(item.split("?dl=1")[0]));
-            console.log(dest_items_names)
-          });
+          }
           params["dest_filename"] = dest_items_names.join();
           // single source file: params["dest_filename"] = await this.getDriveFileName(params["source_file"].split("?dl=1")[0]);
         } else {
@@ -493,24 +494,25 @@ class App extends React.Component {
       let dest_items_names = dest_filename.split(',').map(x => x.trim());
       let result = null;
 
-      soure_items.forEach(async (src_item, index) => {
+      for (let index in soure_items) {
         // for each file, get upload link and then upload file
-        try {
+          let temp_result = null;
+          try {
           const upload_link = await getUploadLink(config, repo_id)
           var file_obj = null;
-          if (source_file_obj && source_file_obj.name === src_item) {
+          if (source_file_obj && source_file_obj.name === soure_items[index]) {
             // source file is local file
             console.log("Source file: Local File");
             file_obj = source_file_obj;
           } else {
             // source file is at URL
             console.log("Source file: URL");
-            file_obj = await getFileFromUrl(src_item, dest_items_names[index]);
+            file_obj = await getFileFromUrl(soure_items[index], dest_items_names[index]);
           }
 
           // rename the file if demanded
           let file_obj_new = null;
-          if (src_item.split("/").pop() !== dest_items_names[index]) {
+          if (soure_items[index].split("/").pop() !== dest_items_names[index]) {
             console.log("Setting new file name");
             file_obj_new = new File([file_obj], dest_items_names[index], { type: file_obj.type });
           }
@@ -523,17 +525,22 @@ class App extends React.Component {
           await axios
             .post(upload_link + "?ret-json=1", data)
             .then((res) => {
-              // console.log(res);
-              result = "success"
+              console.log(res);
+              temp_result = "success"
             });
         } catch (e) {
           console.warn(e.message);
-          result = e.message;
+          temp_result = e.message;
         }
-        if (result !== "success") {
-          return result;
+
+        console.log(temp_result);
+
+        if (temp_result !== "success") {
+          return temp_result;
         }
-      });
+        result = temp_result;
+      }
+      console.log(result);
       return result;
     }
 
@@ -572,7 +579,7 @@ class App extends React.Component {
           // if overwrite not set, then check if a file already exists at destination
           let file_exists = null;
           let dest_items_names = this.state.dest_filename.split(',').map(x => x.trim());
-          for (let item in dest_items_names) {
+          for (let item of dest_items_names) {
             file_exists = await checkFileExists(config, collab_id, this.state.dest_dir + "/" + item);
             if (file_exists) {
               result = "overwrite";
@@ -603,11 +610,11 @@ class App extends React.Component {
         }
 
         if (result === "success" && this.state.open_drive) {
-          window.location.href = driveGUI + collab_id + "/file" + this.state.dest_dir + "/" + this.state.dest_filename;
+          window.location.href = driveGUI + collab_id + "/file" + this.state.dest_dir + "/" + this.state.dest_filename.split(',')[0];
         }
 
         if (result === "success" && this.state.open_lab) {
-          window.location.href = jupyterGUI + collab_lab_name + this.state.dest_dir + "/" + this.state.dest_filename;
+          window.location.href = jupyterGUI + collab_lab_name + this.state.dest_dir + "/" + this.state.dest_filename.split(',')[0];
         }
 
         this.setState({
@@ -696,7 +703,7 @@ class App extends React.Component {
           onClose={this.handleResultDialogClose}
           collab_name={this.state.collab_lab_name}
           collab_id={this.state.collab_id}
-          dest_file={this.state.dest_dir + "/" + this.state.dest_filename}
+          dest_file={this.state.dest_dir + "/" + this.state.dest_filename.split(',')[0]}
         />
       );
     }
