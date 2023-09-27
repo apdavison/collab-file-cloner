@@ -8,7 +8,6 @@ import LoadCollabs from "./LoadCollabs";
 import SwitchMultiWay from "./SwitchMultiWay";
 import ResultDialog from "./ResultDialog";
 import { baseUrl, driveAPI_v2, driveGUI, jupyterGUI, corsProxy } from "./globals";
-// import { baseUrl, driveAPI_v2, driveAPI_v2 } from "./globals";
 
 import axios from "axios";
 import Button from '@mui/material/Button';
@@ -83,10 +82,24 @@ class App extends React.Component {
       }
 
       console.log(params)
-      params["source_file"] = this.formatDriveUrl(params["source_file"]);
+
+      // new feature: handle multiple source file URLs
+      let soure_items = params["source_file"].split(',').map(x => x.trim());
+      soure_items.forEach((item, index) => {
+        soure_items[index] = this.formatDriveUrl(item);
+      });
+      params["source_file"] = soure_items.join();
+      // single source file: params["source_file"] = this.formatDriveUrl(params["source_file"]);
+
       if (!params["dest_filename"] && params["source_file"]) {
         if (params["source_file"].includes("drive.ebrains.eu") && params["source_file"].endsWith("?dl=1")) {
-          params["dest_filename"] = await this.getDriveFileName(params["source_file"].split("?dl=1")[0]);
+          // new feature: handle multiple source file URLs
+          let dest_items_names = []; 
+          soure_items.forEach(async (item, index) => {
+            dest_items_names.push(await this.getDriveFileName(item.split("?dl=1")[0]));
+          });
+          params["dest_filename"] = dest_items_names.join();
+          // single source file: params["dest_filename"] = await this.getDriveFileName(params["source_file"].split("?dl=1")[0]);
         } else {
           params["dest_filename"] = params["source_file"].split("/").pop().split("?")[0];
         }
@@ -472,44 +485,54 @@ class App extends React.Component {
 
     // ------------------------------------------------
 
-    const uploadFile = async (config, repo_id, dest_dir_path, dest_filename, source_file, source_file_obj, file_overwrite) => {
-      // get upload link and then upload file
+    const uploadFile = async (config, repo_id, dest_dir_path, dest_filename, source_file, source_file_obj, file_overwrite) => 
+    {
+      // new feature: handle multiple source file URLs
+      let soure_items = source_file.split(',').map(x => x.trim());
+      let dest_items_names = dest_filename.split(',').map(x => x.trim());
       let result = null;
-      try {
-        const upload_link = await getUploadLink(config, repo_id)
-        var file_obj = null;
-        if (source_file_obj && source_file_obj.name === source_file) {
-          // source file is local file
-          console.log("Source file: Local File");
-          file_obj = source_file_obj;
-        } else {
-          // source file is at URL
-          console.log("Source file: URL");
-          file_obj = await getFileFromUrl(source_file, dest_filename);
-        }
 
-        // rename if the file if demanded
-        let file_obj_new = null;
-        if (source_file.split("/").pop() !== dest_filename) {
-          console.log("Setting new file name");
-          file_obj_new = new File([file_obj], dest_filename, { type: file_obj.type });
-        }
+      soure_items.forEach(async (src_item, index) => {
+        // for each file, get upload link and then upload file
+        try {
+          const upload_link = await getUploadLink(config, repo_id)
+          var file_obj = null;
+          if (source_file_obj && source_file_obj.name === src_item) {
+            // source file is local file
+            console.log("Source file: Local File");
+            file_obj = source_file_obj;
+          } else {
+            // source file is at URL
+            console.log("Source file: URL");
+            file_obj = await getFileFromUrl(src_item, dest_items_names[index]);
+          }
 
-        var data = new FormData();
-        data.append('file', file_obj_new ? file_obj_new : file_obj);
-        data.append('parent_dir', "/");
-        data.append('relative_path', dest_dir_path.slice(1));
-        data.append('replace', file_overwrite ? '1' : '0');
-        await axios
-          .post(upload_link + "?ret-json=1", data)
-          .then((res) => {
-            // console.log(res);
-            result = "success"
-          });
-      } catch (e) {
-        console.warn(e.message);
-        result = e.message;
-      }
+          // rename the file if demanded
+          let file_obj_new = null;
+          if (src_item.split("/").pop() !== dest_items_names[index]) {
+            console.log("Setting new file name");
+            file_obj_new = new File([file_obj], dest_items_names[index], { type: file_obj.type });
+          }
+
+          var data = new FormData();
+          data.append('file', file_obj_new ? file_obj_new : file_obj);
+          data.append('parent_dir', "/");
+          data.append('relative_path', dest_dir_path.slice(1));
+          data.append('replace', file_overwrite ? '1' : '0');
+          await axios
+            .post(upload_link + "?ret-json=1", data)
+            .then((res) => {
+              // console.log(res);
+              result = "success"
+            });
+        } catch (e) {
+          console.warn(e.message);
+          result = e.message;
+        }
+        if (result !== "success") {
+          return result;
+        }
+      });
       return result;
     }
 
@@ -546,9 +569,14 @@ class App extends React.Component {
         let result = null;
         if (!this.state.file_overwrite) {
           // if overwrite not set, then check if a file already exists at destination
-          let file_exists = await checkFileExists(config, collab_id, this.state.dest_dir + "/" + this.state.dest_filename);
-          if (file_exists) {
-            result = "overwrite";
+          let file_exists = null;
+          let dest_items_names = this.state.dest_filename.split(',').map(x => x.trim());
+          for (let item in dest_items_names) {
+            file_exists = await checkFileExists(config, collab_id, this.state.dest_dir + "/" + item);
+            if (file_exists) {
+              result = "overwrite";
+              break;
+            }
           }
         }
 
