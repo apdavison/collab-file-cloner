@@ -1,7 +1,7 @@
 # collab-file-cloner
 Collaboratory File Cloner
 
-https://collab-file-cloner.netlify.app/
+https://collab-file-cloner.apps.ebrains.eu/
 
 #### Description
 This tool will allow you to clone a file into Collab storage.

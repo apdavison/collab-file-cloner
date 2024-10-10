@@ -787,7 +787,7 @@ class App extends React.Component {
               <strong>Usage via URL query parameters</strong>&nbsp;- click for more info
             </AccordionSummary>
             <AccordionDetails>
-              <div style={{ paddingTop: "10px" }}><strong>Base URL:</strong> <code>https://collab-file-cloner.netlify.app/</code></div>
+              <div style={{ paddingTop: "10px" }}><strong>Base URL:</strong> <code>https://collab-file-cloner.apps.ebrains.eu/</code></div>
               <br />
               <strong>Query parameters:</strong>
               <table>
@@ -874,7 +874,7 @@ class App extends React.Component {
                 whiteSpace: "nowrap"
               }}>
                 <span style={{ fontFamily: "monospace" }}>
-                  <span style={{ fontWeight: "bolder" }}>https://collab-file-cloner.netlify.app/</span>
+                  <span style={{ fontWeight: "bolder" }}>https://collab-file-cloner.apps.ebrains.eu/</span>
                   <span style={{ color: "red" }}>#</span>
                   <span style={{ color: "darkgreen" }}>
                     <span style={{ fontWeight: "bolder" }}>source_file</span>

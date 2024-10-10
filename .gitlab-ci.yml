@@ -1,0 +1,16 @@
+stages:
+  - build
+
+build_image:
+  stage: build
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == "main"
+  script:
+    - cd collab-file-cloner
+    - docker build -f deployment/Dockerfile -t docker-registry.ebrains.eu/live-papers/collab-file-cloner:latest .
+    - echo $DOCKER_REGISTRY_USER
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_SECRET docker-registry.ebrains.eu
+    - docker push docker-registry.ebrains.eu/live-papers/collab-file-cloner:latest
+  tags:
+    - shell-runner
