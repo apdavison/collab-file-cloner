@@ -1,7 +1,6 @@
 // To access certain APIs that give CORS related issues
-export const corsProxy = "";
 //export const corsProxy = "http://corsproxy.apps.tc.humanbrainproject.eu/";
-//export const corsProxy = "https://corsproxy.hbpneuromorphic.eu/";
+export const corsProxy = "https://corsproxy.hbpneuromorphic.eu/";
 // export const corsProxy = "https://corsproxy-sa.herokuapp.com/"
 // previously used https://corsproxy-sa.herokuapp.com/
 // other options: https://cors-clear.herokuapp.com/, https://cors-fixer.herokuapp.com/,
