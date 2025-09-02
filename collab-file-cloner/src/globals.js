@@ -1,5 +1,5 @@
 // To access certain APIs that give CORS related issues
-export const corsProxy = "http://corsproxy.apps.ebrains.eu/";
+export const corsProxy = "https://corsproxy.apps.ebrains.eu/";
 export const baseUrl = "https://model-validation-api.apps.ebrains.eu";
 export const driveAPI_v2 = corsProxy + "https://drive.ebrains.eu/api2/"
 export const driveAPI_v2_1 = corsProxy + "https://drive.ebrains.eu/api/v2.1/"
