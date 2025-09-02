@@ -3,7 +3,7 @@ import Keycloak from 'keycloak-js';
 
 // We start by configuring the Keycloak javascript client
 // It needs to know your app id in order to authenticate users for it
-const keycloak = Keycloak({
+const keycloak = new Keycloak({
     url: 'https://iam.ebrains.eu/auth',
     realm: 'hbp',
     clientId: 'collab-file-cloner',

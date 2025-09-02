@@ -65,6 +65,7 @@ export default class LoadCollabs extends React.Component {
         />
       );
     } else {
+      console.log(this.context.collabList);
       return (
         <Dialog
           onClose={this.handleClose}
@@ -81,7 +82,7 @@ export default class LoadCollabs extends React.Component {
           <DialogContent>
             <LoadingIndicatorModal open={this.state.loading} />
             <Box my={2}>
-              To have edit permissions for a Collab, you must be an 'adminstrator'
+              To have edit permissions for a Collab, you must be an 'administrator'
               or 'editor' of that Collab. You currrently have permissions to
               edit the following Collabs on the Collaboratory.
               You can create a new Collab&nbsp;
