@@ -9,7 +9,7 @@ import Box from "@mui/material/Box";
 import ContextMain from "./ContextMain";
 import LoadingIndicatorModal from "./LoadingIndicatorModal";
 import ErrorDialog from "./ErrorDialog";
-import MaterialTable, { MTableToolbar } from "@material-table/core";
+import { Autocomplete } from "@mui/material";
 
 // define the columns for the material data table
 const TABLE_COLUMNS = [
@@ -65,7 +65,6 @@ export default class LoadCollabs extends React.Component {
         />
       );
     } else {
-      console.log(this.context.collabList);
       return (
         <Dialog
           onClose={this.handleClose}
@@ -89,51 +88,19 @@ export default class LoadCollabs extends React.Component {
               <a href="https://wiki.ebrains.eu/bin/view/Collabs?clbaction=create" target="_blank" rel="noreferrer">here</a>.
             </Box>
             <Box my={2}>
-              <MaterialTable
-                title="Editable Collabs"
-                data={this.context.collabList[0] || []}
-                columns={TABLE_COLUMNS}
-                onRowClick={(evt, selectedRow) => {
-                  // console.log(evt);
-                  console.log(selectedRow.id);
-                  let myEvent = { target: {
+              <Autocomplete
+                options={this.context.collabList[0] || []}
+                getOptionLabel={(option) => option.id || ""}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                sx={{ paddingLeft: "20px", paddingRight: "20px" }}
+                renderInput={(params) => <TextField {...params} label="Collabs" />}
+                onChange={(event, newValue) => this.props.handleFieldChange({
+                  target: {
                     name: 'dest_collab',
-                    value: selectedRow.id,
-                  }}
-                  this.props.handleFieldChange(myEvent);
-                }}
-                options={{
-                  search: true,
-                  paging: false,
-                  filtering: false,
-                  exportButton: false,
-                  maxBodyHeight: "34vh",
-                  headerStyle: {
-                    position: "sticky",
-                    top: 0,
-                    backgroundColor: "#EEEEEE",
-                    fontWeight: "bolder",
-                    fontSize: 15,
-                  },
-                  rowStyle: (rowData) => ({
-                    backgroundColor:
-                      this.props.dest_collab === rowData.id
-                        ? "#FFD180"
-                        : "#EFF7E5",
-                  }),
-                }}
-                components={{
-                  Toolbar: (props) => (
-                    <div
-                      style={{
-                        backgroundColor: "#13AC8B",
-                        fontWeight: "bolder !important",
-                      }}
-                    >
-                      <MTableToolbar {...props} />
-                    </div>
-                  ),
-                }}
+                    value: newValue.id,
+                  }
+                })}
+                value={this.props.dest_collab ? {id: this.props.dest_collab} : null}
               />
             </Box>
             <Box my={2}>

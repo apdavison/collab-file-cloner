@@ -656,7 +656,7 @@ class App extends React.Component {
   }
 
   render() {
-    console.log(this.state);
+    //console.log(this.state);
     var collabListContent = "";
     if (this.state.collabListOpen) {
       collabListContent = (
