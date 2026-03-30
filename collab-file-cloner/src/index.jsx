@@ -19,9 +19,11 @@ function renderApp(auth) {
 }
 
 
-// For local development, uncomment the lines below, paste in a valid token, then comment out the bottom line
-// const auth = {
-//     token: "eyJ..."
-// }
-// window.addEventListener('DOMContentLoaded', () => renderApp(auth));
-window.addEventListener('DOMContentLoaded', () => initAuth(renderApp));
+// In development, if VITE_DEV_TOKEN is set in .env.local, use it directly.
+// Otherwise fall through to the normal Keycloak login flow.
+// See .env.local.example for setup instructions.
+if (import.meta.env.DEV && import.meta.env.VITE_DEV_TOKEN) {
+  window.addEventListener("DOMContentLoaded", () => renderApp({ token: import.meta.env.VITE_DEV_TOKEN }));
+} else {
+  window.addEventListener('DOMContentLoaded', () => initAuth(renderApp));
+}
